@@ -27,7 +27,76 @@ export interface CompanyBrandsState {
   error: string | null;
 }
 
-// Mock data for development
+// Sample data for testing and demonstration
+const sampleCompany: Company = {
+  id: '1',
+  name: 'TechVision Solutions',
+  description: 'A cutting-edge technology company specializing in AI-powered business solutions, cloud infrastructure, and digital transformation services for small to medium enterprises.',
+  coreKPIs: [
+    'Monthly Recurring Revenue (MRR)',
+    'Customer Acquisition Cost (CAC)', 
+    'Customer Lifetime Value (CLV)',
+    'Net Promoter Score (NPS)',
+    'Time to Market for New Features',
+    'Client Retention Rate'
+  ],
+  missionStatement: 'To empower businesses worldwide with intelligent technology solutions that drive growth, efficiency, and innovation. We believe in democratizing access to advanced AI tools, making cutting-edge technology accessible to companies of all sizes.',
+  createdAt: new Date('2024-01-15'),
+  updatedAt: new Date(),
+};
+
+const sampleBrands: Brand[] = [
+  {
+    id: '1',
+    name: 'TechVision AI',
+    description: 'Our flagship AI platform that provides intelligent business insights, automated decision-making, and predictive analytics for enterprise clients.',
+    benefits: [
+      'Reduces manual data analysis by 80%',
+      'Improves decision accuracy by 65%',
+      'Real-time insights and reporting',
+      '24/7 AI-powered customer support',
+      'Seamless integration with existing systems',
+      'Advanced machine learning algorithms'
+    ],
+    color: '#8B5CF6',
+    createdAt: new Date('2024-01-20'),
+    updatedAt: new Date(),
+  },
+  {
+    id: '2', 
+    name: 'CloudFlow Pro',
+    description: 'A comprehensive cloud infrastructure management platform designed for scalable, secure, and cost-effective cloud operations.',
+    benefits: [
+      'Reduces cloud costs by up to 40%',
+      'Auto-scaling capabilities',
+      'Enterprise-grade security',
+      'Multi-cloud support',
+      'Compliance management tools',
+      'DevOps integration'
+    ],
+    color: '#EC4899',
+    createdAt: new Date('2024-02-01'),
+    updatedAt: new Date(),
+  },
+  {
+    id: '3',
+    name: 'DataBridge Connect',
+    description: 'An innovative data integration solution that connects disparate systems, enabling seamless data flow and real-time synchronization.',
+    benefits: [
+      'Connect 500+ data sources',
+      'Real-time data synchronization',
+      'No-code integration builder',
+      'Advanced data transformation',
+      'Monitoring and alerting',
+      'Enterprise security standards'
+    ],
+    color: '#10B981',
+    createdAt: new Date('2024-02-15'),
+    updatedAt: new Date(),
+  }
+];
+
+// Mock data for development (empty by default)
 const mockCompany: Company = {
   id: '1',
   name: '',
@@ -68,6 +137,27 @@ export function useCompanyBrands() {
       }));
     }
   }, []);
+
+  // Load sample data for demonstration
+  const loadSampleData = () => {
+    try {
+      // Save sample data to localStorage
+      localStorage.setItem('geoiq_company', JSON.stringify(sampleCompany));
+      localStorage.setItem('geoiq_brands', JSON.stringify(sampleBrands));
+
+      setState({
+        company: sampleCompany,
+        brands: sampleBrands,
+        loading: false,
+        error: null,
+      });
+    } catch (error) {
+      setState(prev => ({
+        ...prev,
+        error: 'Failed to load sample data',
+      }));
+    }
+  };
 
   // Save company data
   const updateCompany = async (companyData: Partial<Company>) => {
@@ -223,6 +313,7 @@ export function useCompanyBrands() {
     updateBrand,
     deleteBrand,
     getBrandById,
+    loadSampleData,
     clearData,
   };
 } 

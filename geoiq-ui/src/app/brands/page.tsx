@@ -10,7 +10,9 @@ import {
   SparklesIcon,
   ShieldCheckIcon,
   LightBulbIcon,
-  HeartIcon
+  HeartIcon,
+  BeakerIcon,
+  TrashIcon as ClearIcon
 } from '@heroicons/react/24/outline';
 import { useCompanyBrands } from '@/hooks/useCompanyBrands';
 import CompanyDetailsForm from '@/components/brands/CompanyDetailsForm';
@@ -46,7 +48,9 @@ export default function CompanyBrandsPage() {
     updateCompany, 
     addBrand, 
     updateBrand, 
-    deleteBrand 
+    deleteBrand,
+    loadSampleData,
+    clearData
   } = useCompanyBrands();
   
   const [showBrandForm, setShowBrandForm] = useState(false);
@@ -109,6 +113,20 @@ export default function CompanyBrandsPage() {
     setShowBrandForm(true);
   };
 
+  const handleLoadSampleData = () => {
+    if (window.confirm('This will replace any existing data with sample data. Continue?')) {
+      loadSampleData();
+    }
+  };
+
+  const handleClearData = () => {
+    if (window.confirm('This will permanently delete all company and brand data. Continue?')) {
+      clearData();
+    }
+  };
+
+  const hasData = (company && company.name) || brands.length > 0;
+
   return (
     <motion.div 
       className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-purple-50/30"
@@ -140,6 +158,26 @@ export default function CompanyBrandsPage() {
                 Build your digital identity. Define your company's mission and create compelling brands 
                 that resonate with your audience in the AI-powered world.
               </p>
+              
+              {/* Demo Data Controls */}
+              {!hasData && (
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1 }}
+                  className="mt-8 flex justify-center gap-4"
+                >
+                  <motion.button
+                    onClick={handleLoadSampleData}
+                    className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm text-white px-6 py-3 rounded-xl font-medium hover:bg-white/30 transition-all duration-300 border border-white/30"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    <BeakerIcon className="w-5 h-5" />
+                    <span className="font-roboto">Load Sample Data</span>
+                  </motion.button>
+                </motion.div>
+              )}
             </motion.div>
           </div>
         </div>
@@ -153,6 +191,37 @@ export default function CompanyBrandsPage() {
       </div>
 
       <div className="max-w-7xl mx-auto px-6 py-12 lg:px-8">
+        {/* Demo Controls */}
+        {hasData && (
+          <motion.div 
+            className="flex justify-center mb-8"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+          >
+            <div className="flex space-x-3 bg-white rounded-xl p-2 shadow-lg border border-gray-100">
+              <motion.button
+                onClick={handleLoadSampleData}
+                className="flex items-center space-x-2 text-purple-600 hover:bg-purple-50 px-4 py-2 rounded-lg font-medium transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <BeakerIcon className="w-4 h-4" />
+                <span className="font-roboto text-sm">Load Sample Data</span>
+              </motion.button>
+              <motion.button
+                onClick={handleClearData}
+                className="flex items-center space-x-2 text-red-600 hover:bg-red-50 px-4 py-2 rounded-lg font-medium transition-all duration-300"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+              >
+                <ClearIcon className="w-4 h-4" />
+                <span className="font-roboto text-sm">Clear All Data</span>
+              </motion.button>
+            </div>
+          </motion.div>
+        )}
+
         {/* Navigation Tabs */}
         <motion.div 
           className="flex justify-center mb-12"
@@ -246,13 +315,22 @@ export default function CompanyBrandsPage() {
                   <p className="text-gray-600 mb-6 max-w-md mx-auto">
                     Start building your brand portfolio. Create your first brand to begin telling your story.
                   </p>
-                  <button
-                    onClick={handleAddNewBrand}
-                    className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
-                  >
-                    <PlusIcon className="w-5 h-5" />
-                    <span className="font-roboto">Create Your First Brand</span>
-                  </button>
+                  <div className="flex justify-center gap-4">
+                    <button
+                      onClick={handleAddNewBrand}
+                      className="inline-flex items-center space-x-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl transition-all duration-300"
+                    >
+                      <PlusIcon className="w-5 h-5" />
+                      <span className="font-roboto">Create Your First Brand</span>
+                    </button>
+                    <button
+                      onClick={handleLoadSampleData}
+                      className="inline-flex items-center space-x-2 bg-white text-purple-600 border border-purple-200 px-6 py-3 rounded-xl font-medium shadow-lg hover:shadow-xl hover:bg-purple-50 transition-all duration-300"
+                    >
+                      <BeakerIcon className="w-5 h-5" />
+                      <span className="font-roboto">Try Sample Brands</span>
+                    </button>
+                  </div>
                 </motion.div>
               ) : (
                 <motion.div 
