@@ -1,44 +1,162 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import React, { useState, useEffect, useCallback } from 'react';
+import { motion } from 'framer-motion';
 import { 
   BuildingOfficeIcon, 
   DocumentTextIcon, 
   ChartBarIcon, 
-  StarIcon,
+  HeartIcon,
   PlusIcon,
-  XMarkIcon,
   CheckIcon,
-  LightBulbIcon
+  XMarkIcon,
+  PencilIcon
 } from '@heroicons/react/24/outline';
-import { Company } from '@/hooks/useCompanyBrands';
+import { Company, CompanyUpdateData } from '@/types/company-brands';
 
 interface CompanyDetailsFormProps {
   company: Company | null;
-  onSave: (companyData: Partial<Company>) => Promise<Company>;
+  onSave: (companyData: CompanyUpdateData) => Promise<Company | null>;
 }
 
 const formVariants = {
-  initial: { opacity: 0, y: 20 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.6 } }
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.4 } }
 };
 
 const fieldVariants = {
-  initial: { opacity: 0, x: -20 },
-  animate: { opacity: 1, x: 0 }
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2 } }
 };
+
+type EditingField = 'name' | 'description' | 'coreKPIs' | 'missionStatement' | null;
+
+// FieldRow component for consistent styling
+const FieldRow = React.memo(({ 
+  icon: Icon, 
+  label, 
+  field, 
+  value, 
+  placeholder,
+  isTextarea = false,
+  isEditing,
+  editValue,
+  isLoading,
+  onStartEdit,
+  onSaveField,
+  onCancelEdit,
+  onEditValueChange
+}: {
+  icon: React.ComponentType<{ className?: string }>;
+  label: string;
+  field: EditingField;
+  value: string;
+  placeholder: string;
+  isTextarea?: boolean;
+  isEditing: boolean;
+  editValue: string;
+  isLoading: boolean;
+  onStartEdit: (field: EditingField) => void;
+  onSaveField: (field: EditingField) => void;
+  onCancelEdit: () => void;
+  onEditValueChange: (value: string) => void;
+}) => {
+  return (
+    <div className="geoiq-card p-6">
+      <div className="grid grid-cols-2 gap-6">
+        {/* Left Column - Field Name with Icon and Edit Button */}
+        <div className="flex items-center space-x-3">
+          <div className="p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: '#39009920' }}>
+            <Icon className="w-4 h-4 text-[#390099]" />
+          </div>
+          <div className="flex items-center space-x-2 min-w-0 flex-1">
+            <span className="text-sm font-medium font-roboto" style={{ color: '#9E0059' }}>
+              {label}
+            </span>
+            {!isEditing && (
+              <button
+                onClick={() => onStartEdit(field)}
+                className="p-1 text-gray-400 hover:text-[#390099] hover:bg-gray-50 rounded transition-colors duration-200 flex-shrink-0"
+              >
+                <PencilIcon className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column - Field Value or Edit Input */}
+        <div className="min-w-0">
+          {!isEditing ? (
+            <div className="text-sm text-gray-900 font-roboto break-words">
+              {value ? (
+                <span className="leading-relaxed">{value}</span>
+              ) : (
+                <span className="text-gray-400 italic">Not set</span>
+              )}
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {isTextarea ? (
+                <textarea
+                  value={editValue}
+                  onChange={(e) => onEditValueChange(e.target.value)}
+                  placeholder={placeholder}
+                  rows={4}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-[#390099] focus:ring-1 focus:ring-[#390099]/20 outline-none transition-all duration-200 font-roboto resize-none"
+                  autoFocus
+                />
+              ) : (
+                <input
+                  type="text"
+                  value={editValue}
+                  onChange={(e) => onEditValueChange(e.target.value)}
+                  placeholder={placeholder}
+                  className="w-full px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-[#390099] focus:ring-1 focus:ring-[#390099]/20 outline-none transition-all duration-200 font-roboto"
+                  autoFocus
+                />
+              )}
+              <div className="flex items-center space-x-2">
+                <button
+                  onClick={() => onSaveField(field)}
+                  disabled={isLoading || !editValue.trim()}
+                  className="flex items-center space-x-1 px-3 py-1.5 bg-[#390099] text-white rounded text-xs font-medium disabled:opacity-50 transition-all duration-200 hover:bg-[#390099]/90"
+                >
+                  {isLoading ? (
+                    <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                  ) : (
+                    <CheckIcon className="w-3 h-3" />
+                  )}
+                  <span>Save</span>
+                </button>
+                <button
+                  onClick={onCancelEdit}
+                  className="px-3 py-1.5 text-gray-600 hover:text-gray-800 rounded text-xs font-medium transition-colors duration-200"
+                >
+                  Cancel
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
+
+FieldRow.displayName = 'FieldRow';
 
 export default function CompanyDetailsForm({ company, onSave }: CompanyDetailsFormProps) {
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     coreKPIs: [] as string[],
-    missionStatement: '',
+    missionStatement: ''
   });
+  const [editingField, setEditingField] = useState<EditingField>(null);
+  const [editValue, setEditValue] = useState('');
+  const [editKPIs, setEditKPIs] = useState<string[]>([]);
   const [newKPI, setNewKPI] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [isSaved, setIsSaved] = useState(false);
 
   useEffect(() => {
     if (company) {
@@ -46,249 +164,243 @@ export default function CompanyDetailsForm({ company, onSave }: CompanyDetailsFo
         name: company.name || '',
         description: company.description || '',
         coreKPIs: company.coreKPIs || [],
-        missionStatement: company.missionStatement || '',
+        missionStatement: company.missionStatement || ''
       });
     }
   }, [company]);
 
-  const handleInputChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
-  };
-
-  const addKPI = () => {
-    if (newKPI.trim() && !formData.coreKPIs.includes(newKPI.trim())) {
-      setFormData(prev => ({
-        ...prev,
-        coreKPIs: [...prev.coreKPIs, newKPI.trim()]
-      }));
+  const startEdit = useCallback((field: EditingField) => {
+    setEditingField(field);
+    if (field === 'coreKPIs') {
+      setEditKPIs([...formData.coreKPIs]);
       setNewKPI('');
+    } else {
+      setEditValue(formData[field as keyof typeof formData] as string);
     }
-  };
+  }, [formData]);
 
-  const removeKPI = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      coreKPIs: prev.coreKPIs.filter((_, i) => i !== index)
-    }));
-  };
+  const cancelEdit = useCallback(() => {
+    setEditingField(null);
+    setEditValue('');
+    setEditKPIs([]);
+    setNewKPI('');
+  }, []);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
+  const saveField = useCallback(async (field: EditingField) => {
+    if (!field) return;
     
+    setIsLoading(true);
     try {
-      await onSave(formData);
-      setIsSaved(true);
-      setTimeout(() => setIsSaved(false), 2000);
+      let updatedData: CompanyUpdateData;
+      if (field === 'coreKPIs') {
+        updatedData = { coreKPIs: editKPIs };
+      } else {
+        updatedData = { [field]: editValue };
+      }
+      
+      const result = await onSave(updatedData);
+      if (result) {
+        setFormData(prev => ({
+          ...prev,
+          ...updatedData
+        }));
+        setEditingField(null);
+        setEditValue('');
+        setEditKPIs([]);
+        setNewKPI('');
+      }
     } catch (error) {
-      console.error('Error saving company:', error);
+      console.error('Error saving field:', error);
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [editValue, editKPIs, onSave]);
 
-  const isFormValid = formData.name.trim() && formData.description.trim() && formData.missionStatement.trim();
+  const handleEditValueChange = useCallback((value: string) => {
+    setEditValue(value);
+  }, []);
+
+  const addKPI = useCallback(() => {
+    if (newKPI.trim() && !editKPIs.includes(newKPI.trim())) {
+      setEditKPIs(prev => [...prev, newKPI.trim()]);
+      setNewKPI('');
+    }
+  }, [newKPI, editKPIs]);
+
+  const removeKPI = useCallback((index: number) => {
+    setEditKPIs(prev => prev.filter((_, i) => i !== index));
+  }, []);
 
   return (
     <motion.div
       variants={formVariants}
       initial="initial"
       animate="animate"
-      className="max-w-4xl mx-auto"
+      className="space-y-6"
     >
-      {/* Header */}
-      <div className="text-center mb-12">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-          className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-purple-600 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg"
-        >
-          <BuildingOfficeIcon className="w-10 h-10 text-white" />
-        </motion.div>
-        <h2 className="text-3xl font-bold text-gray-900 font-roboto mb-4">
-          Company Profile
-        </h2>
-        <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-          Define your company's identity, mission, and core metrics. This information helps 
-          shape how AI systems understand and represent your brand.
-        </p>
-      </div>
+      {/* Company Name */}
+      <motion.div variants={fieldVariants}>
+        <FieldRow
+          icon={BuildingOfficeIcon}
+          label="Company Name"
+          field="name"
+          value={formData.name}
+          placeholder="Enter your company name"
+          isEditing={editingField === 'name'}
+          editValue={editValue}
+          isLoading={isLoading}
+          onStartEdit={startEdit}
+          onSaveField={saveField}
+          onCancelEdit={cancelEdit}
+          onEditValueChange={handleEditValueChange}
+        />
+      </motion.div>
 
-      <form onSubmit={handleSubmit} className="space-y-8">
-        {/* Company Name */}
-        <motion.div variants={fieldVariants} className="space-y-3">
-          <label className="flex items-center space-x-2 text-lg font-medium text-gray-900 font-roboto">
-            <BuildingOfficeIcon className="w-5 h-5 text-purple-600" />
-            <span>Company Name</span>
-          </label>
-          <div className="relative">
-            <input
-              type="text"
-              value={formData.name}
-              onChange={(e) => handleInputChange('name', e.target.value)}
-              placeholder="Enter your company name..."
-              className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm font-roboto"
-              required
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-pink-500/10 rounded-xl pointer-events-none opacity-0 transition-opacity duration-300 group-focus-within:opacity-100"></div>
-          </div>
-        </motion.div>
+      {/* Company Description */}
+      <motion.div variants={fieldVariants}>
+        <FieldRow
+          icon={DocumentTextIcon}
+          label="Company Description"
+          field="description"
+          value={formData.description}
+          placeholder="Describe your company's business, services, and target market"
+          isTextarea={true}
+          isEditing={editingField === 'description'}
+          editValue={editValue}
+          isLoading={isLoading}
+          onStartEdit={startEdit}
+          onSaveField={saveField}
+          onCancelEdit={cancelEdit}
+          onEditValueChange={handleEditValueChange}
+        />
+      </motion.div>
 
-        {/* Company Description */}
-        <motion.div variants={fieldVariants} className="space-y-3">
-          <label className="flex items-center space-x-2 text-lg font-medium text-gray-900 font-roboto">
-            <DocumentTextIcon className="w-5 h-5 text-purple-600" />
-            <span>Company Description</span>
-          </label>
-          <div className="relative">
-            <textarea
-              value={formData.description}
-              onChange={(e) => handleInputChange('description', e.target.value)}
-              placeholder="Describe what your company does, your industry, and what makes you unique..."
-              rows={4}
-              className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm font-roboto resize-none"
-              required
-            />
-          </div>
-        </motion.div>
-
-        {/* Core KPIs */}
-        <motion.div variants={fieldVariants} className="space-y-3">
-          <label className="flex items-center space-x-2 text-lg font-medium text-gray-900 font-roboto">
-            <ChartBarIcon className="w-5 h-5 text-purple-600" />
-            <span>Core KPIs</span>
-          </label>
-          <p className="text-sm text-gray-600 font-roboto">
-            Add the key performance indicators that matter most to your business
-          </p>
-          
-          {/* Add KPI Input */}
-          <div className="flex space-x-3">
-            <input
-              type="text"
-              value={newKPI}
-              onChange={(e) => setNewKPI(e.target.value)}
-              placeholder="e.g., Monthly Recurring Revenue, Customer Satisfaction Score..."
-              className="flex-1 px-4 py-3 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none transition-all duration-300 font-roboto"
-              onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addKPI())}
-            />
-            <motion.button
-              type="button"
-              onClick={addKPI}
-              disabled={!newKPI.trim()}
-              className="px-6 py-3 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 hover:shadow-lg font-roboto"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <PlusIcon className="w-5 h-5" />
-            </motion.button>
-          </div>
-
-          {/* KPIs List */}
-          <AnimatePresence>
-            {formData.coreKPIs.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="space-y-2"
-              >
-                {formData.coreKPIs.map((kpi, index) => (
-                  <motion.div
-                    key={index}
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    transition={{ delay: index * 0.1 }}
-                    className="flex items-center justify-between px-4 py-3 bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg group"
+      {/* Core KPIs */}
+      <motion.div variants={fieldVariants}>
+        <div className="geoiq-card p-6">
+          <div className="grid grid-cols-2 gap-6">
+            {/* Left Column - Field Name with Icon and Edit Button */}
+            <div className="flex items-start space-x-3">
+              <div className="p-2 rounded-lg flex-shrink-0" style={{ backgroundColor: '#39009920' }}>
+                <ChartBarIcon className="w-4 h-4 text-[#390099]" />
+              </div>
+              <div className="flex items-center space-x-2 min-w-0 flex-1">
+                <span className="text-sm font-medium font-roboto" style={{ color: '#9E0059' }}>
+                  Core KPIs
+                </span>
+                {editingField !== 'coreKPIs' && (
+                  <button
+                    onClick={() => startEdit('coreKPIs')}
+                    className="p-1 text-gray-400 hover:text-[#390099] hover:bg-gray-50 rounded transition-colors duration-200 flex-shrink-0"
                   >
-                    <div className="flex items-center space-x-3">
-                      <div className="w-2 h-2 bg-gradient-to-r from-purple-600 to-pink-600 rounded-full"></div>
-                      <span className="text-gray-900 font-medium font-roboto">{kpi}</span>
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeKPI(index)}
-                      className="opacity-0 group-hover:opacity-100 p-1 text-gray-400 hover:text-red-500 transition-all duration-200"
-                    >
-                      <XMarkIcon className="w-4 h-4" />
-                    </button>
-                  </motion.div>
-                ))}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </motion.div>
+                    <PencilIcon className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+            </div>
 
-        {/* Mission Statement */}
-        <motion.div variants={fieldVariants} className="space-y-3">
-          <label className="flex items-center space-x-2 text-lg font-medium text-gray-900 font-roboto">
-            <StarIcon className="w-5 h-5 text-purple-600" />
-            <span>Mission Statement</span>
-          </label>
-          <div className="relative">
-            <textarea
-              value={formData.missionStatement}
-              onChange={(e) => handleInputChange('missionStatement', e.target.value)}
-              placeholder="Describe your company's purpose, values, and what you aim to achieve..."
-              rows={4}
-              className="w-full px-6 py-4 text-lg border-2 border-gray-200 rounded-xl focus:border-purple-500 focus:ring-4 focus:ring-purple-100 outline-none transition-all duration-300 bg-white/50 backdrop-blur-sm font-roboto resize-none"
-              required
-            />
-          </div>
-        </motion.div>
-
-        {/* Submit Button */}
-        <motion.div 
-          className="flex justify-center pt-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6 }}
-        >
-          <motion.button
-            type="submit"
-            disabled={!isFormValid || isLoading}
-            className="group relative flex items-center space-x-3 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white text-lg font-medium rounded-xl shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-roboto"
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            <AnimatePresence mode="wait">
-              {isLoading ? (
-                <motion.div
-                  key="loading"
-                  initial={{ opacity: 0, rotate: 0 }}
-                  animate={{ opacity: 1, rotate: 360 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
-                  className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
-                />
-              ) : isSaved ? (
-                <motion.div
-                  key="saved"
-                  initial={{ opacity: 0, scale: 0 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0 }}
-                >
-                  <CheckIcon className="w-5 h-5" />
-                </motion.div>
+            {/* Right Column - KPIs List or Edit Interface */}
+            <div className="min-w-0">
+              {editingField !== 'coreKPIs' ? (
+                <div className="space-y-2">
+                  {formData.coreKPIs.length > 0 ? (
+                    formData.coreKPIs.map((kpi, index) => (
+                      <div key={`kpi-view-${index}`} className="flex items-start space-x-2">
+                        <div className="w-1.5 h-1.5 rounded-full mt-2 flex-shrink-0" style={{ backgroundColor: '#390099' }}></div>
+                        <span className="text-sm text-gray-900 font-roboto leading-relaxed break-words">{kpi}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-sm text-gray-400 italic font-roboto">No KPIs defined yet</span>
+                  )}
+                </div>
               ) : (
-                <motion.div
-                  key="save"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                >
-                  <LightBulbIcon className="w-5 h-5" />
-                </motion.div>
+                <div className="space-y-3">
+                  {/* Add KPI Input */}
+                  <div className="flex space-x-2">
+                    <input
+                      type="text"
+                      value={newKPI}
+                      onChange={(e) => setNewKPI(e.target.value)}
+                      placeholder="e.g., Monthly Recurring Revenue (MRR)"
+                      className="flex-1 px-3 py-2 text-sm border border-gray-200 rounded-lg focus:border-[#390099] focus:ring-1 focus:ring-[#390099]/20 outline-none transition-all duration-200 font-roboto"
+                      onKeyPress={(e) => e.key === 'Enter' && (e.preventDefault(), addKPI())}
+                    />
+                    <button
+                      onClick={addKPI}
+                      disabled={!newKPI.trim()}
+                      className="px-3 py-2 bg-gray-100 text-gray-600 rounded-lg text-sm font-medium disabled:opacity-50 transition-all duration-200 hover:bg-gray-200"
+                    >
+                      <PlusIcon className="w-4 h-4" />
+                    </button>
+                  </div>
+
+                  {/* KPIs List */}
+                  {editKPIs.length > 0 && (
+                    <div className="space-y-2 max-h-40 overflow-y-auto">
+                      {editKPIs.map((kpi, index) => (
+                        <div
+                          key={`kpi-edit-${index}`}
+                          className="flex items-center justify-between p-2 bg-gray-50 border border-gray-100 rounded-lg"
+                        >
+                          <span className="text-sm text-gray-900 font-roboto flex-1 min-w-0 break-words pr-2">{kpi}</span>
+                          <button
+                            onClick={() => removeKPI(index)}
+                            className="p-1 text-gray-400 hover:text-red-600 transition-colors duration-200 flex-shrink-0"
+                          >
+                            <XMarkIcon className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {/* Save/Cancel KPIs */}
+                  <div className="flex items-center space-x-2">
+                    <button
+                      onClick={() => saveField('coreKPIs')}
+                      disabled={isLoading}
+                      className="flex items-center space-x-1 px-3 py-1.5 bg-[#390099] text-white rounded text-xs font-medium disabled:opacity-50 transition-all duration-200 hover:bg-[#390099]/90"
+                    >
+                      {isLoading ? (
+                        <div className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></div>
+                      ) : (
+                        <CheckIcon className="w-3 h-3" />
+                      )}
+                      <span>Save KPIs</span>
+                    </button>
+                    <button
+                      onClick={cancelEdit}
+                      className="px-3 py-1.5 text-gray-600 hover:text-gray-800 rounded text-xs font-medium transition-colors duration-200"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </div>
               )}
-            </AnimatePresence>
-            <span>
-              {isLoading ? 'Saving...' : isSaved ? 'Saved!' : 'Save Company Profile'}
-            </span>
-          </motion.button>
-        </motion.div>
-      </form>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
+      {/* Mission Statement */}
+      <motion.div variants={fieldVariants}>
+        <FieldRow
+          icon={HeartIcon}
+          label="Mission Statement"
+          field="missionStatement"
+          value={formData.missionStatement}
+          placeholder="Describe your company's mission, vision, and core values"
+          isTextarea={true}
+          isEditing={editingField === 'missionStatement'}
+          editValue={editValue}
+          isLoading={isLoading}
+          onStartEdit={startEdit}
+          onSaveField={saveField}
+          onCancelEdit={cancelEdit}
+          onEditValueChange={handleEditValueChange}
+        />
+      </motion.div>
     </motion.div>
   );
 } 

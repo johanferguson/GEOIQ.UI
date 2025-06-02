@@ -84,7 +84,7 @@ export const useDashboard = (
   refreshInterval: number = 5
 ): UseDashboardReturn => {
   const logger = Logger.getInstance('useDashboard');
-  const refreshIntervalRef = useRef<NodeJS.Timeout>();
+  const refreshIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const mountedRef = useRef(true);
 
   // Initialize state

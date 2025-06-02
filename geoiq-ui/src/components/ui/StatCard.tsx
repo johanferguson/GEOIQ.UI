@@ -93,14 +93,11 @@ export const StatCard: React.FC<StatCardProps> = ({
 
         {/* Icon */}
         <div 
-          className="p-2 rounded-lg flex-shrink-0"
-          style={{ 
-            backgroundColor: `${metric.iconColor || metric.color}20` 
-          }}
+          className="p-3 rounded-lg"
+          style={{ backgroundColor: (metric.iconColor || metric.color) + '20' }}
         >
-          <metric.icon 
-            className="w-5 h-5"
-            style={{ color: metric.iconColor || metric.color }}
+          <metric.icon
+            className="w-5 h-5 text-[#390099]"
           />
         </div>
       </div>

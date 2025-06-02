@@ -122,12 +122,9 @@ export default function SidebarNav({ className }: SidebarNavProps) {
                   className={cn(
                     'flex-shrink-0 w-5 h-5 transition-colors duration-200',
                     isActive
-                      ? ''
+                      ? 'text-[#390099]'
                       : 'text-gray-500 group-hover:opacity-80'
                   )}
-                  style={{
-                    color: isActive ? '#390099' : item.iconColor
-                  }}
                 />
                 
                 <AnimatePresence mode="wait">
