@@ -39,10 +39,10 @@
 
 ### Font Sizes (Compact Design)
 ```css
---text-xs: 12px     /* Change indicators, chart labels, timestamps */
---text-sm: 14px     /* Stat card headings, supporting text */
+--text-xs: 12px     /* Change indicators, chart labels, timestamps, action card descriptions */
+--text-sm: 14px     /* Stat card headings, supporting text, action card titles */
 --text-base: 16px   /* Body text, navigation */
---text-lg: 18px     /* Chart titles, action card titles */
+--text-lg: 18px     /* Chart titles */
 --text-xl: 20px     /* Statistics numbers (reduced from 24px) */
 --text-2xl: 24px    /* Page titles, major section headers */
 ```
@@ -54,6 +54,8 @@
 --body-color: #4b5563           /* Regular text */
 --stats-color: #390099          /* Primary statistics */
 --accent-stats: #FF0054 | #FFBD00  /* Accent statistics */
+--action-title: #390099         /* Action card titles */
+--action-description: #6b7280   /* Action card descriptions */
 ```
 
 ## 🎯 Layout Principles
@@ -67,8 +69,8 @@
 ```css
 --space-1: 4px      /* Tight spacing */
 --space-2: 8px      /* Small spacing - icon containers */
---space-3: 12px     /* Medium spacing */
---space-4: 16px     /* Default spacing - stat cards */
+--space-3: 12px     /* Medium spacing - action card gaps */
+--space-4: 16px     /* Default spacing - stat cards and action cards */
 --space-6: 24px     /* Large spacing - chart cards */
 --space-8: 32px     /* Extra large spacing */
 ```
@@ -107,6 +109,54 @@
   font-size: 12px; /* text-xs - reduced from 14px */
   margin-top: 4px;
   /* Color based on change type: green for positive, red for negative */
+}
+```
+
+### Quick Action Cards (Matching Design)
+```css
+.action-card {
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e5e7eb;
+  padding: 16px; /* p-4 - matches stat cards */
+  transition: all 0.3s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px; /* gap-3 - compact horizontal layout */
+}
+
+.action-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.action-content {
+  flex: 1;
+}
+
+.action-title {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 500; /* Medium */
+  font-size: 14px; /* text-sm - matches stat headings */
+  color: #390099; /* Primary brand color */
+  margin-bottom: 4px;
+}
+
+.action-description {
+  font-family: 'Roboto', sans-serif;
+  font-weight: 400; /* Normal */
+  font-size: 12px; /* text-xs - compact description */
+  color: #6b7280; /* Neutral gray */
+  line-height: 1.4;
+}
+
+.action-icon {
+  width: 20px; /* w-5 h-5 - matches stat icons */
+  height: 20px;
+  color: #390099; /* Primary color */
+  flex-shrink: 0;
 }
 ```
 
@@ -151,6 +201,13 @@
 /* Branded Icons (LinkedIn, Reddit, Quora) */
 .branded-icon {
   color: #390099; /* Always use primary color */
+}
+
+/* Action Card Icons */
+.action-icon {
+  width: 20px; /* w-5 h-5 - consistent with stat icons */
+  height: 20px;
+  color: #390099; /* Primary color */
 }
 ```
 
@@ -401,15 +458,22 @@
 
 ### Section Headings
 - **Remove unnecessary headings**: Don't use "Content", "Growth", "Quick Actions" unless needed for context
-- **Keep "Recent Activity"**: Necessary for user orientation
+- **Recent Activity section**: **REMOVED** - No longer part of the dashboard layout
 - **Font**: Roboto Medium, #374151, 24px
 - **No gradients in chart titles**: Use solid #9E0059 color
 
 ### Compact Card Content Structure
-1. **Heading**: Normal weight (400), #9E0059, 14px (text-sm)
-2. **Value**: Medium weight (500), stat color, 20px (text-xl)
-3. **Change**: Normal weight (400), semantic color, 12px (text-xs)
-4. **Icon**: 20px (w-5 h-5), in colored background circle with 8px padding
+1. **Statistics Cards**:
+   - **Heading**: Normal weight (400), #9E0059, 14px (text-sm)
+   - **Value**: Medium weight (500), stat color, 20px (text-xl)
+   - **Change**: Normal weight (400), semantic color, 12px (text-xs)
+   - **Icon**: 20px (w-5 h-5), in colored background circle with 8px padding
+
+2. **Quick Action Cards**:
+   - **Title**: Medium weight (500), #390099, 14px (text-sm)
+   - **Description**: Normal weight (400), #6b7280, 12px (text-xs)
+   - **Icon**: 20px (w-5 h-5), right-aligned, #390099 color
+   - **Layout**: Horizontal with content on left, icon on right
 
 ### Custom Icons
 - **LinkedIn, Reddit, Quora**: Always use custom SVG icons
@@ -451,12 +515,13 @@ const QuoraIcon = ({ className }: { className?: string }) => (
 ### Grid Systems
 - **Mobile**: 1 column
 - **Tablet**: 2 columns
-- **Desktop**: 4 columns for stats, 2 columns for charts
+- **Desktop**: 4 columns for stats, 2 columns for charts, 2 columns for actions
 
 ### Compact Spacing
 - **Statistics Cards**: `gap-4` (16px between cards)
 - **Chart Cards**: `gap-8` (32px between charts)
-- **Card Padding**: Statistics `p-4` (16px), Charts `p-6` (24px)
+- **Action Cards**: `gap-3` (12px between cards)
+- **Card Padding**: Statistics & Actions `p-4` (16px), Charts `p-6` (24px)
 
 ### Breakpoints
 - **sm**: 640px and up
@@ -483,6 +548,11 @@ const QuoraIcon = ({ className }: { className?: string }) => (
 - Use consistent spacing scales
 - Prioritize content density while maintaining readability
 
+### Unified Card Design
+- **Statistics and Action cards**: Share same base styling (white background, 8px border-radius, subtle shadow, 16px padding)
+- **Chart cards**: Enhanced with gradients and stronger shadows for hierarchy
+- **Consistent interactions**: Hover effects and transitions across all card types
+
 ### SVG Effects
 - Use SVG filters for glow effects on charts
 - Implement proper gradients with multiple color stops
@@ -497,11 +567,13 @@ const QuoraIcon = ({ className }: { className?: string }) => (
 3. **Sparingly use accent colors** (#FF0054, #FFBD00) (10% rule)
 4. **All text should use Roboto font family**
 5. **Card headings are normal weight with solid colors** (no gradients)
-6. **Statistics cards use compact sizing** (p-4, text-sm, text-xl, text-xs)
-7. **Chart cards use modern effects** (subtle gradients, glass-morphism, SVG filters)
-8. **Branded icons always use #390099** with compact 20px sizing
-9. **Charts use transparency with fadeout effects** for contemporary look
-10. **Animations are smooth and purposeful** with proper easing
+6. **Statistics and action cards use identical base styling** (p-4, consistent shadows, same border radius)
+7. **Action cards use horizontal layout** with title/description on left, icon on right
+8. **Chart cards use modern effects** (subtle gradients, glass-morphism, SVG filters)
+9. **Branded icons always use #390099** with compact 20px sizing
+10. **Charts use transparency with fadeout effects** for contemporary look
+11. **Recent Activity section is removed** from all dashboard layouts
+12. **Animations are smooth and purposeful** with proper easing
 
 ## 🎯 2024 Best Practices
 
@@ -509,6 +581,16 @@ const QuoraIcon = ({ className }: { className?: string }) => (
 - **Modern Effects**: Glass-morphism, subtle shadows, SVG filters
 - **Transparency**: Use opacity creatively for depth and hierarchy  
 - **Consistency**: Maintain design system throughout all components
+- **Unified Experience**: Statistics and Action cards share styling for cohesive interface
 - **Performance**: Optimize animations and effects for smooth interactions
 
-This style guide ensures consistency across all GEOIQ pages and maintains the professional, modern aesthetic established in our 2024 dashboard design. 
+## 🔄 Recent Updates (Latest)
+
+### Dashboard Layout Changes
+- **✅ Removed**: Recent Activity section completely eliminated from dashboard
+- **✅ Updated**: Quick Actions cards now match Statistics cards styling
+- **✅ Unified**: Consistent card design across statistics and actions
+- **✅ Optimized**: Horizontal layout for action cards with right-aligned icons
+- **✅ Harmonized**: All interactive cards share same base styling and behaviors
+
+This style guide ensures consistency across all GEOIQ pages and maintains the professional, modern aesthetic established in our 2024 dashboard design with the latest refinements for optimal user experience. 
