@@ -178,6 +178,65 @@
     height: 32px;
     @apply border-4;
   }
+
+  /* Enhanced Content Card Styles */
+  .content-card {
+    @apply geoiq-card p-6 hover:shadow-lg transition-all duration-300 cursor-pointer;
+  }
+
+  .content-card:hover {
+    @apply transform -translate-y-1 shadow-xl;
+  }
+
+  .content-section-header {
+    @apply flex items-center justify-between mb-6;
+  }
+
+  .content-stats-badge {
+    @apply text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full;
+  }
+
+  .difficulty-badge-low {
+    @apply bg-green-100 text-green-700;
+  }
+
+  .difficulty-badge-medium {
+    @apply bg-yellow-100 text-yellow-700;
+  }
+
+  .difficulty-badge-high {
+    @apply bg-red-100 text-red-700;
+  }
+
+  .difficulty-badge-expert {
+    @apply bg-purple-100 text-purple-700;
+  }
+
+  .platform-indicator {
+    @apply flex items-center gap-1 text-xs text-gray-500;
+  }
+
+  .engagement-metric {
+    @apply flex items-center gap-1 text-xs text-gray-500;
+  }
+
+  /* Tag List Styling */
+  .tag-list {
+    @apply flex flex-wrap gap-2 mt-4;
+  }
+
+  .content-tag {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-primary-50 text-primary-600 border border-primary-200;
+  }
+
+  /* Action Button Variants */
+  .action-btn-primary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-primary-600 text-white hover:bg-primary-700 shadow-sm hover:shadow-md;
+  }
+
+  .action-btn-secondary {
+    @apply inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 bg-white border border-gray-300 text-primary-600 hover:bg-gray-50 hover:border-primary-600;
+  }
 }
 
 @layer utilities {

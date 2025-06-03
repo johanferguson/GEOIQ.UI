@@ -33,7 +33,7 @@ const navigation: NavItem[] = [
   { name: 'Company & Brands', href: '/brands', icon: BuildingOfficeIcon, iconColor: '#390099' },
   { name: 'Prompts', href: '/prompts', icon: ChatBubbleLeftRightIcon, iconColor: '#390099' },
   { name: 'Visibility Scanning', href: '/scan', icon: MagnifyingGlassIcon, iconColor: '#FF0054', badge: 3 },
-  { name: 'Content Creation', href: '/content', icon: DocumentTextIcon, iconColor: '#390099' },
+  { name: 'Suggested Content', href: '/content', icon: DocumentTextIcon, iconColor: '#390099' },
   { name: 'Reports & Analytics', href: '/analytics', icon: ChartBarIcon, iconColor: '#390099' },
   { name: 'Scheduling', href: '/schedule', icon: CalendarIcon, iconColor: '#390099' },
   { name: 'Settings', href: '/settings', icon: CogIcon, iconColor: '#FFBD00' },
