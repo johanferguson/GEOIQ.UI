@@ -528,7 +528,7 @@ export default function VisibilityScanningPage() {
                           onClick={() => togglePromptExpansion(result.id)}
                         >
                           <div className="flex items-start justify-between">
-                            <div className="flex-1">
+                            <div className="flex-1 pr-4">
                               <div className="flex items-center space-x-3 mb-2">
                                 <p className="text-sm font-medium text-gray-900 font-roboto flex-1">
                                   {result.prompt}
@@ -567,22 +567,16 @@ export default function VisibilityScanningPage() {
                                 </div>
                               </div>
                             </div>
-                          </div>
-                          
-                          {/* Progress bar with gradient */}
-                          <div className="mt-3">
-                            <div className="w-full bg-gray-200 rounded-full h-1.5">
-                              <div 
-                                className="h-1.5 rounded-full transition-all duration-300"
-                                style={{ 
-                                  width: `${result.score}%`,
-                                  background: result.sentiment === 'positive' 
-                                    ? 'linear-gradient(90deg, #390099 0%, #FF0054 100%)'
-                                    : result.sentiment === 'negative'
-                                    ? 'linear-gradient(90deg, #FF0054 0%, #FF5400 100%)'
-                                    : 'linear-gradient(90deg, #FFBD00 0%, #FF5400 100%)'
-                                }}
-                              ></div>
+                            
+                            {/* Score Card */}
+                            <div className="flex-shrink-0 ml-4">
+                              <div className="bg-gradient-to-br from-[#FF0054] to-[#FF0054]/80 text-white px-4 py-3 rounded-lg shadow-sm">
+                                <div className="text-center">
+                                  <div className="text-lg font-bold font-roboto">
+                                    {result.score}%
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </div>
                         </div>
