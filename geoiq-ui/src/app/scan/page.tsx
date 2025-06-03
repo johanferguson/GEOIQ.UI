@@ -570,9 +570,9 @@ export default function VisibilityScanningPage() {
                             
                             {/* Score Card */}
                             <div className="flex-shrink-0 ml-4">
-                              <div className="bg-gradient-to-br from-[#FF0054] to-[#FF0054]/80 text-white px-4 py-3 rounded-lg shadow-sm">
+                              <div className="bg-white border border-gray-200 px-4 py-3 rounded-lg shadow-sm">
                                 <div className="text-center">
-                                  <div className="text-lg font-bold font-roboto">
+                                  <div className="text-lg font-bold font-roboto" style={{ color: '#FF0054' }}>
                                     {result.score}%
                                   </div>
                                 </div>
