@@ -304,11 +304,8 @@ export default function VisibilityScanningPage() {
                       
                       <div className="absolute inset-0 flex items-center justify-center">
                         <div className="text-center">
-                          <div className="text-xl font-bold font-roboto" style={{ color: '#9E0059' }}>
+                          <div className="text-lg font-bold font-roboto" style={{ color: '#9E0059' }}>
                             {currentData.visibilityScore || 0}%
-                          </div>
-                          <div className="text-xs text-gray-600 font-roboto">
-                            Overall Score
                           </div>
                         </div>
                       </div>
@@ -351,7 +348,7 @@ export default function VisibilityScanningPage() {
                             data={currentData.mentionsBreakdown || []}
                             cx="50%"
                             cy="50%"
-                            outerRadius={55}
+                            outerRadius={50}
                             dataKey="value"
                             label={({ name, percent, x, y }) => (
                               percent > 0.05 ? `${name} ${(percent * 100).toFixed(0)}%` : ''
