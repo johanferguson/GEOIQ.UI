@@ -271,8 +271,8 @@ export default function VisibilityScanningPage() {
                             ]}
                             cx="50%"
                             cy="50%"
-                            innerRadius={50}
-                            outerRadius={70}
+                            innerRadius={40}
+                            outerRadius={60}
                             startAngle={90}
                             endAngle={450}
                             dataKey="value"
@@ -351,7 +351,7 @@ export default function VisibilityScanningPage() {
                             data={currentData.mentionsBreakdown || []}
                             cx="50%"
                             cy="50%"
-                            outerRadius={70}
+                            outerRadius={60}
                             dataKey="value"
                             label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
                             labelLine={false}
