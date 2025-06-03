@@ -16,6 +16,32 @@
 --golden-yellow: #FFBD00        /* Accent highlights */
 ```
 
+### Visibility Scanning Chart Colors
+```css
+--chart-primary: #390099        /* Brand data, positive sentiment */
+--chart-accent: #FF0054         /* Negative sentiment, competitor data */
+--chart-secondary: #FFBD00      /* Neutral sentiment, warnings */
+--chart-tertiary: #FF5400       /* Mixed sentiment, highlights */
+--chart-neutral: #9E0059        /* Secondary brand data */
+```
+
+### Chart Gradient Definitions
+```css
+/* Visibility Score Donut Gradient */
+--visibility-gradient: linear-gradient(0deg, #FF0054 0%, #FF5400 50%, #FFBD00 100%);
+
+/* Pie Chart White Gradients */
+--positive-white-gradient: linear-gradient(0deg, #390099 0%, rgba(255, 255, 255, 0.3) 100%);
+--neutral-white-gradient: linear-gradient(0deg, #FFBD00 0%, rgba(255, 255, 255, 0.4) 100%);
+--negative-white-gradient: linear-gradient(0deg, #FF0054 0%, rgba(255, 255, 255, 0.3) 100%);
+--mixed-white-gradient: linear-gradient(0deg, #FF5400 0%, rgba(255, 255, 255, 0.4) 100%);
+
+/* Radar Chart Gradients */
+--radar-fill-gradient: linear-gradient(0deg, #390099 0%, #FF0054 50%, rgba(255, 255, 255, 0.1) 100%);
+--radar-stroke-gradient: linear-gradient(90deg, #390099 0%, #FF0054 50%, #FFBD00 100%);
+--market-fill-gradient: linear-gradient(0deg, #e5e7eb 0%, rgba(255, 255, 255, 0.2) 100%);
+```
+
 ### Semantic Colors
 ```css
 --success-green: #16a34a        /* Positive changes, success states */
@@ -1014,6 +1040,464 @@ const QuoraIcon = ({ className }: { className?: string }) => (
 - **Active States**: #390099 with light backgrounds
 - **Hover States**: Darker shades of primary colors
 - **Disabled States**: #d1d5db with reduced opacity
+
+## 📊 Visibility Scanning Components
+
+### Chart Card System
+```css
+/* Gradient Chart Cards */
+.chart-card-slate {
+  background: linear-gradient(to bottom right, white, #f8fafc);
+  border: none;
+  box-shadow: 0 10px 15px -3px rgba(148, 163, 184, 0.5);
+}
+
+.chart-card-amber {
+  background: linear-gradient(to bottom right, white, #fef3c7);
+  border: none;
+  box-shadow: 0 10px 15px -3px rgba(251, 191, 36, 0.3);
+}
+
+.chart-card-purple {
+  background: linear-gradient(to bottom right, white, #f3e8ff);
+  border: none;
+  box-shadow: 0 10px 15px -3px rgba(147, 51, 234, 0.3);
+}
+```
+
+### Visibility Score Donut Chart
+```css
+/* SVG Gradient Definitions for Recharts */
+<defs>
+  <linearGradient id="visibilityGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="#FF0054" stopOpacity={0.8}/>
+    <stop offset="50%" stopColor="#FF5400" stopOpacity={0.6}/>
+    <stop offset="100%" stopColor="#FFBD00" stopOpacity={0.4}/>
+  </linearGradient>
+  
+  <filter id="donutGlow">
+    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+    <feMerge> 
+      <feMergeNode in="coloredBlur"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
+
+/* Chart Configuration */
+- Inner Radius: 60px
+- Outer Radius: 80px
+- Start Angle: 90deg (top)
+- End Angle: 450deg (full circle + 90deg)
+- Center Label: Score percentage + "Overall Score" subtitle
+```
+
+### Mentions Pie Chart with White Gradients
+```css
+/* White Gradient Definitions */
+<defs>
+  <linearGradient id="positiveGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="#390099" stopOpacity={1}/>
+    <stop offset="100%" stopColor="rgba(255, 255, 255, 0.3)" stopOpacity={1}/>
+  </linearGradient>
+  
+  <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="#FFBD00" stopOpacity={1}/>
+    <stop offset="100%" stopColor="rgba(255, 255, 255, 0.4)" stopOpacity={1}/>
+  </linearGradient>
+  
+  <linearGradient id="negativeGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="#FF0054" stopOpacity={1}/>
+    <stop offset="100%" stopColor="rgba(255, 255, 255, 0.3)" stopOpacity={1}/>
+  </linearGradient>
+  
+  <linearGradient id="mixedGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="#FF5400" stopOpacity={1}/>
+    <stop offset="100%" stopColor="rgba(255, 255, 255, 0.4)" stopOpacity={1}/>
+  </linearGradient>
+</defs>
+
+/* Labels */
+- Font Size: 10px
+- Font Family: Roboto
+- Color: Normal text (#374151)
+- Format: "Label Percentage%"
+```
+
+### Radar Chart (Competitive Analysis)
+```css
+/* Radar Chart Gradients */
+<defs>
+  <linearGradient id="radarFillGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="#390099" stopOpacity={0.6}/>
+    <stop offset="50%" stopColor="#FF0054" stopOpacity={0.3}/>
+    <stop offset="100%" stopColor="rgba(255, 255, 255, 0.1)" stopOpacity={0.1}/>
+  </linearGradient>
+  
+  <linearGradient id="radarStrokeGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+    <stop offset="0%" stopColor="#390099" />
+    <stop offset="50%" stopColor="#FF0054" />
+    <stop offset="100%" stopColor="#FFBD00" />
+  </linearGradient>
+  
+  <linearGradient id="marketFillGradient" x1="0" y1="0" x2="0" y2="1">
+    <stop offset="0%" stopColor="#e5e7eb" stopOpacity={0.4}/>
+    <stop offset="100%" stopColor="rgba(255, 255, 255, 0.2)" stopOpacity={0.2}/>
+  </linearGradient>
+  
+  <filter id="radarGlow">
+    <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+    <feMerge> 
+      <feMergeNode in="coloredBlur"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
+
+/* Radar Configuration */
+- Grid: #e1e5e9 with 60% opacity
+- Angle Labels: 10px, #64748b, Roboto
+- Radius Labels: 9px, #94a3b8, Roboto
+- Domain: [0, 100]
+- Market Line: Dashed stroke (#94a3b8)
+- Brand Line: Gradient stroke with glow effect
+```
+
+### LLM Response Components
+```css
+/* Prompt Result Cards */
+.prompt-result-card {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  transition: box-shadow 0.2s ease;
+}
+
+.prompt-result-card:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+/* Prompt Header */
+.prompt-header {
+  padding: 16px;
+  cursor: pointer;
+}
+
+.prompt-text {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Prompt Metadata */
+.prompt-metadata {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'Roboto', sans-serif;
+  margin-top: 8px;
+}
+
+/* Score Progress Bar */
+.score-progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e5e7eb;
+  border-radius: 3px;
+  margin-top: 12px;
+}
+
+.score-progress-fill {
+  height: 6px;
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+/* Progress Bar Sentiment Colors */
+.score-positive {
+  background: linear-gradient(90deg, #390099 0%, #FF0054 100%);
+}
+
+.score-negative {
+  background: linear-gradient(90deg, #FF0054 0%, #FF5400 100%);
+}
+
+.score-neutral {
+  background: linear-gradient(90deg, #FFBD00 0%, #FF5400 100%);
+}
+```
+
+### Expandable LLM Answer Section
+```css
+/* Expansion Container */
+.llm-answer-container {
+  overflow: hidden;
+  border-top: 1px solid #f3f4f6;
+}
+
+/* Answer Header */
+.llm-answer-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.llm-status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(to right, #390099, #FF0054);
+}
+
+.llm-answer-title {
+  font-size: 14px;
+  font-weight: 500;
+  color: #111827;
+  font-family: 'Roboto', sans-serif;
+}
+
+/* Answer Content */
+.llm-answer-content {
+  background: linear-gradient(to bottom right, #f9fafb, #f1f5f9);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.llm-answer-text {
+  font-size: 12px;
+  color: #374151;
+  font-family: 'Roboto', sans-serif;
+  line-height: 1.5;
+  white-space: pre-line;
+}
+
+/* Bold Headings in LLM Text */
+.llm-answer-text strong {
+  color: #9E0059;
+  font-weight: 600;
+}
+
+/* Answer Footer */
+.llm-answer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.llm-metadata {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'Roboto', sans-serif;
+}
+
+.copy-response-button {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #6b7280;
+  font-family: 'Roboto', sans-serif;
+  transition: color 0.2s ease;
+}
+
+.copy-response-button:hover {
+  color: #390099;
+}
+
+.copy-success {
+  color: #16a34a;
+}
+```
+
+### Tab Navigation (Brand Switching)
+```css
+/* Tab Container */
+.brand-tabs {
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.brand-tab-nav {
+  display: flex;
+  gap: 32px;
+}
+
+/* Individual Tab */
+.brand-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 4px;
+  border-bottom: 2px solid transparent;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+/* Active Tab */
+.brand-tab-active {
+  border-bottom-color: #390099;
+  color: #390099;
+}
+
+/* Inactive Tab */
+.brand-tab-inactive {
+  color: #6b7280;
+}
+
+.brand-tab-inactive:hover {
+  color: #374151;
+  border-bottom-color: #d1d5db;
+}
+
+/* Tab Icons */
+.brand-tab-icon {
+  width: 16px;
+  height: 16px;
+}
+```
+
+### Scan Actions
+```css
+/* Rescan Button */
+.rescan-button {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: #FF0054;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  font-family: 'Roboto', sans-serif;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.2s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.rescan-button:hover {
+  background-color: rgba(255, 0, 84, 0.9);
+}
+
+.rescan-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.rescan-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.rescan-icon-spinning {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+```
+
+### Animation Patterns
+```css
+/* Page Transition */
+.page-transition {
+  opacity: 0;
+  transform: translateY(10px);
+  transition: all 0.4s ease;
+}
+
+.page-transition-enter {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered Card Animation */
+.card-stagger-container {
+  --stagger-delay: 0.02s;
+}
+
+.card-stagger-item {
+  opacity: 0;
+  transform: translateY(8px);
+  animation: cardFadeIn 0.3s ease forwards;
+}
+
+.card-stagger-item:nth-child(1) { animation-delay: calc(0 * var(--stagger-delay)); }
+.card-stagger-item:nth-child(2) { animation-delay: calc(1 * var(--stagger-delay)); }
+.card-stagger-item:nth-child(3) { animation-delay: calc(2 * var(--stagger-delay)); }
+
+@keyframes cardFadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* LLM Answer Expansion */
+.llm-expansion-enter {
+  opacity: 0;
+  height: 0;
+}
+
+.llm-expansion-enter-active {
+  opacity: 1;
+  height: auto;
+  transition: all 0.3s ease-in-out;
+}
+
+.llm-expansion-exit {
+  opacity: 1;
+  height: auto;
+}
+
+.llm-expansion-exit-active {
+  opacity: 0;
+  height: 0;
+  transition: all 0.3s ease-in-out;
+}
+```
+
+### Chart Tooltip Styling
+```css
+/* Universal Chart Tooltip */
+.chart-tooltip {
+  background: rgba(255, 255, 255, 0.95);
+  border: none;
+  border-radius: 12px;
+  font-size: 13px;
+  color: #374151;
+  font-family: 'Roboto', sans-serif;
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  backdrop-filter: blur(10px);
+  padding: 12px;
+}
+
+.chart-tooltip-label {
+  color: #9E0059;
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.chart-tooltip-value {
+  color: #374151;
+  font-weight: 400;
+}
+```
 
 ---
 

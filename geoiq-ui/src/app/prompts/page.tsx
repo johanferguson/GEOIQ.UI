@@ -1,260 +1,310 @@
 'use client';
 
-import React, { useState } from 'react';
-import { motion } from 'framer-motion';
-import {
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
   ArrowPathIcon,
-  FunnelIcon,
-  PlusIcon,
-  MagnifyingGlassIcon,
+  ClipboardDocumentIcon,
+  CheckIcon,
+  ChatBubbleLeftRightIcon,
+  CpuChipIcon,
+  CloudIcon,
+  LinkIcon,
+  BuildingOfficeIcon
 } from '@heroicons/react/24/outline';
 import DashboardLayout from '@/components/layout/DashboardLayout';
-import PromptCard from '@/components/ui/PromptCard';
-import { cn } from '@/lib/utils';
+import { promptService, Prompt, BRANDS } from '@/services/prompts.service';
 
-const mockPrompts = [
-  {
-    id: '1',
-    text: 'What are the best project management tools for small businesses looking to improve team collaboration and productivity?',
-    category: 'general' as const,
-    brandMentions: 3,
-    competitorMentions: 1,
-    visibilityScore: 75,
-  },
-  {
-    id: '2',
-    text: 'Compare the pricing models of different CRM solutions for startups with limited budgets.',
-    category: 'pricing' as const,
-    brandMentions: 2,
-    competitorMentions: 4,
-    visibilityScore: 33,
-  },
-  {
-    id: '3',
-    text: 'What features should I look for in a customer support platform that integrates well with existing business tools?',
-    category: 'features' as const,
-    brandMentions: 4,
-    competitorMentions: 2,
-    visibilityScore: 67,
-  },
-  {
-    id: '4',
-    text: 'How does TechCorp compare to other enterprise software solutions in terms of scalability and security?',
-    category: 'comparison' as const,
-    brandMentions: 5,
-    competitorMentions: 3,
-    visibilityScore: 83,
-  },
-  {
-    id: '5',
-    text: 'What are the most cost-effective marketing automation tools for e-commerce businesses?',
-    category: 'pricing' as const,
-    brandMentions: 1,
-    competitorMentions: 5,
-    visibilityScore: 17,
-  },
-  {
-    id: '6',
-    text: 'Which analytics platforms provide the best insights for data-driven decision making in retail?',
-    category: 'general' as const,
-    brandMentions: 3,
-    competitorMentions: 2,
-    visibilityScore: 60,
-  },
-];
+const pageVariants = {
+  initial: { opacity: 0, y: 10 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.4 } },
+  exit: { opacity: 0, y: -10 }
+};
 
-const categories = [
-  { value: 'all', label: 'All Categories' },
-  { value: 'general', label: 'General' },
-  { value: 'pricing', label: 'Pricing' },
-  { value: 'features', label: 'Features' },
-  { value: 'comparison', label: 'Comparison' },
-];
+const cardVariants = {
+  initial: { opacity: 0, y: 8 },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+};
+
+const staggerContainer = {
+  animate: {
+    transition: {
+      staggerChildren: 0.02
+    }
+  }
+};
+
+// Icon mapping
+const iconMap = {
+  building: BuildingOfficeIcon,
+  cpu: CpuChipIcon,
+  cloud: CloudIcon,
+  link: LinkIcon
+};
 
 export default function PromptsPage() {
-  const [prompts, setPrompts] = useState(mockPrompts);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isRegeneratingAll, setIsRegeneratingAll] = useState(false);
+  const [activeTab, setActiveTab] = useState('geoiq');
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [isRegenerating, setIsRegenerating] = useState(false);
+  const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const filteredPrompts = prompts.filter(prompt => {
-    const matchesCategory = selectedCategory === 'all' || prompt.category === selectedCategory;
-    const matchesSearch = prompt.text.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
-  });
+  useEffect(() => {
+    loadPrompts();
+  }, [activeTab]);
 
-  const handleRegenerateAll = async () => {
-    setIsRegeneratingAll(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    setIsRegeneratingAll(false);
+  const loadPrompts = () => {
+    setLoading(true);
+    try {
+      const loadedPrompts = promptService.getPrompts(activeTab);
+      setPrompts(loadedPrompts);
+    } catch (error) {
+      console.error('Error loading prompts:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleRegeneratePrompt = (id: string) => {
-    console.log('Regenerating prompt:', id);
-    // Implement individual prompt regeneration
+  const handleRegeneratePrompts = async () => {
+    setIsRegenerating(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    try {
+      const newPrompts = promptService.generateAndSaveNewPrompts(activeTab);
+      setPrompts(newPrompts);
+    } catch (error) {
+      console.error('Error regenerating prompts:', error);
+    }
+    
+    setIsRegenerating(false);
   };
 
-  const handleCopyPrompt = (text: string) => {
-    console.log('Copied prompt:', text);
-    // Additional copy handling if needed
+  const handleCopyPrompt = async (prompt: Prompt) => {
+    const success = await promptService.copyPrompt(prompt.text);
+    if (success) {
+      setCopiedPromptId(prompt.id);
+      setTimeout(() => setCopiedPromptId(null), 2000);
+    }
   };
+
+  if (loading && prompts.length === 0) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="loading-spinner loading-spinner-lg"></div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const currentBrand = BRANDS[activeTab];
 
   return (
     <DashboardLayout>
-      <div className="space-y-8">
-        {/* Header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between"
-        >
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900">AI Prompts</h1>
-            <p className="text-gray-600 mt-2">
-              Generate and test prompts to improve your brand visibility
-            </p>
-          </div>
-          
-          <div className="flex items-center space-x-3 mt-4 sm:mt-0">
-            <button
-              onClick={handleRegenerateAll}
-              disabled={isRegeneratingAll}
-              className={cn(
-                'geoiq-btn-secondary flex items-center space-x-2',
-                isRegeneratingAll && 'opacity-50 cursor-not-allowed'
-              )}
-            >
-              <ArrowPathIcon className={cn(
-                'w-4 h-4',
-                isRegeneratingAll && 'animate-spin'
-              )} />
-              <span>{isRegeneratingAll ? 'Regenerating...' : 'Regenerate All'}</span>
-            </button>
-            
-            <button className="geoiq-btn-primary flex items-center space-x-2">
-              <PlusIcon className="w-4 h-4" />
-              <span>Generate New</span>
-            </button>
-          </div>
-        </motion.div>
-
-        {/* Filters and Search */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="geoiq-card p-6"
-        >
-          <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between space-y-4 lg:space-y-0 lg:space-x-6">
-            {/* Search */}
-            <div className="flex-1 max-w-md">
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search prompts..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="geoiq-input pl-10"
-                />
-              </div>
-            </div>
-
-            {/* Category Filter */}
-            <div className="flex items-center space-x-3">
-              <FunnelIcon className="w-5 h-5 text-gray-500" />
-              <select
-                value={selectedCategory}
-                onChange={(e) => setSelectedCategory(e.target.value)}
-                className="geoiq-input min-w-[150px]"
+      {/* Centered 70% width container */}
+      <div className="w-full max-w-none">
+        <div className="w-[70%] mx-auto">
+          <motion.div 
+            className="space-y-6 bg-white min-h-full font-roboto"
+            variants={pageVariants}
+            initial="initial"
+            animate="animate"
+            exit="exit"
+          >
+            {/* Minimal Page Header - matching Company & Brands */}
+            <div className="flex items-center justify-between">
+              <motion.div
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ duration: 0.4 }}
+                className="flex items-center space-x-3"
               >
-                {categories.map(category => (
-                  <option key={category.value} value={category.value}>
-                    {category.label}
-                  </option>
-                ))}
-              </select>
+                <div className="p-2 rounded-lg" style={{ backgroundColor: '#39009920' }}>
+                  <ChatBubbleLeftRightIcon className="w-5 h-5 text-[#390099]" />
+                </div>
+                <div>
+                  <h1 className="text-lg font-medium text-gray-900 font-roboto">
+                    Brand Prompts
+                  </h1>
+                  <p className="text-xs text-gray-600 font-roboto">
+                    Test your brand visibility across different LLMs and AI platforms
+                  </p>
+                </div>
+              </motion.div>
+
+              {/* Regenerate Button */}
+              <motion.button
+                onClick={handleRegeneratePrompts}
+                disabled={isRegenerating}
+                className="flex items-center space-x-2 bg-white border border-gray-300 text-[#390099] px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-gray-50 hover:border-[#390099] transition-all duration-200 font-roboto disabled:opacity-50"
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 0.5 }}
+              >
+                <ArrowPathIcon className={`w-4 h-4 ${isRegenerating ? 'animate-spin' : ''}`} />
+                <span>{isRegenerating ? 'Regenerating...' : 'Regenerate Prompts'}</span>
+              </motion.button>
             </div>
 
-            {/* Stats */}
-            <div className="flex items-center space-x-6 text-sm text-gray-600">
-              <div>
-                <span className="font-medium text-gray-900">{filteredPrompts.length}</span> prompts
-              </div>
-              <div>
-                Avg. visibility: <span className="font-medium text-primary-600">
-                  {Math.round(filteredPrompts.reduce((acc, p) => acc + p.visibilityScore, 0) / filteredPrompts.length || 0)}%
-                </span>
-              </div>
-            </div>
-          </div>
-        </motion.div>
-
-        {/* Prompts Grid */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {filteredPrompts.map((prompt, index) => (
-            <motion.div
-              key={prompt.id}
-              initial={{ opacity: 0, y: 20 }}
+            {/* Clean Navigation Tabs - exact copy from Company & Brands */}
+            <motion.div 
+              className="border-b border-gray-200"
+              initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.4, delay: 0.1 }}
             >
-              <PromptCard
-                {...prompt}
-                onCopy={handleCopyPrompt}
-                onRegenerate={handleRegeneratePrompt}
-              />
+              <nav className="flex space-x-8">
+                {Object.entries(BRANDS).map(([key, brand]) => {
+                  const IconComponent = iconMap[brand.icon as keyof typeof iconMap];
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        setActiveTab(key);
+                        setCopiedPromptId(null); // Clear copied state when switching tabs
+                      }}
+                      className={`flex items-center space-x-2 py-3 px-1 border-b-2 text-sm font-medium transition-colors font-roboto ${
+                        activeTab === key
+                          ? 'border-[#390099] text-[#390099]'
+                          : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                      }`}
+                    >
+                      <IconComponent className="w-4 h-4" />
+                      <span>{brand.name}</span>
+                    </button>
+                  );
+                })}
+              </nav>
             </motion.div>
-          ))}
+
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTab}
+                variants={staggerContainer}
+                initial="initial"
+                animate="animate"
+                exit="initial"
+              >
+                {/* Prompts Table */}
+                <motion.div 
+                  className="geoiq-card overflow-hidden bg-white border border-gray-200 shadow-sm"
+                  variants={cardVariants}
+                >
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider font-roboto">
+                            {currentBrand.name} Prompt
+                          </th>
+                          <th className="px-6 py-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider font-roboto w-16">
+                            Copy
+                          </th>
+                        </tr>
+                      </thead>
+                      <motion.tbody 
+                        className="bg-white divide-y divide-gray-200"
+                        variants={staggerContainer}
+                        initial="initial"
+                        animate="animate"
+                      >
+                        {prompts.map((prompt, index) => (
+                          <motion.tr
+                            key={prompt.id}
+                            variants={cardVariants}
+                            className="hover:bg-gray-50 transition-colors duration-200"
+                          >
+                            <td className="px-6 py-4">
+                              <div className="text-sm text-gray-900 font-roboto leading-relaxed">
+                                {prompt.text}
+                              </div>
+                            </td>
+                            
+                            <td className="px-6 py-4 text-center">
+                              <button
+                                onClick={() => handleCopyPrompt(prompt)}
+                                className={`p-2 rounded-lg transition-all duration-200 ${
+                                  copiedPromptId === prompt.id
+                                    ? 'bg-green-100 text-green-600'
+                                    : 'text-gray-400 hover:text-[#390099] hover:bg-[#390099]/10'
+                                }`}
+                                title={copiedPromptId === prompt.id ? 'Copied!' : 'Copy prompt'}
+                              >
+                                {copiedPromptId === prompt.id ? (
+                                  <CheckIcon className="w-4 h-4" />
+                                ) : (
+                                  <ClipboardDocumentIcon className="w-4 h-4" />
+                                )}
+                              </button>
+                            </td>
+                          </motion.tr>
+                        ))}
+                      </motion.tbody>
+                    </table>
+                  </div>
+
+                  {/* Table Footer */}
+                  <div className="bg-gray-50 px-6 py-4 border-t border-gray-200">
+                    <div className="flex items-center justify-between text-xs text-gray-600 font-roboto">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                        <span>All prompts ready for LLM testing</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-4">
+                        <span>Total prompts: <span className="font-medium text-[#390099]">{prompts.length}</span></span>
+                        <span>|</span>
+                        <span>Brand: <span className="font-medium text-gray-900">{currentBrand.name}</span></span>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+
+                {/* Usage Instructions */}
+                <motion.div
+                  className="geoiq-card p-6 bg-gradient-to-br from-white to-slate-50 border-0 shadow-sm"
+                  variants={cardVariants}
+                >
+                  <div className="flex items-start gap-4">
+                    <div className="p-2 rounded-lg" style={{ backgroundColor: '#39009915' }}>
+                      <ChatBubbleLeftRightIcon className="w-5 h-5 text-[#390099]" />
+                    </div>
+                    
+                    <div className="flex-1">
+                      <h3 className="text-sm font-medium text-gray-900 font-roboto mb-3">
+                        How to Test {currentBrand.name} Visibility
+                      </h3>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <ul className="space-y-2 text-xs text-gray-600 font-roboto">
+                          <li className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 bg-[#390099] rounded-full mt-1.5 flex-shrink-0"></div>
+                            <span>Copy any prompt using the copy icon</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 bg-[#390099] rounded-full mt-1.5 flex-shrink-0"></div>
+                            <span>Test in ChatGPT, Claude, Gemini, or other AI platforms</span>
+                          </li>
+                        </ul>
+                        <ul className="space-y-2 text-xs text-gray-600 font-roboto">
+                          <li className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 bg-[#390099] rounded-full mt-1.5 flex-shrink-0"></div>
+                            <span>Track how often {currentBrand.name} appears in responses</span>
+                          </li>
+                          <li className="flex items-start gap-2">
+                            <div className="w-1.5 h-1.5 bg-[#390099] rounded-full mt-1.5 flex-shrink-0"></div>
+                            <span>Switch tabs to test different brand strategies</span>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              </motion.div>
+            </AnimatePresence>
+          </motion.div>
         </div>
-
-        {/* Empty State */}
-        {filteredPrompts.length === 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5 }}
-            className="text-center py-12"
-          >
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <MagnifyingGlassIcon className="w-8 h-8 text-gray-400" />
-            </div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No prompts found</h3>
-            <p className="text-gray-600 mb-6">
-              {searchQuery 
-                ? `No prompts match "${searchQuery}". Try adjusting your search or filters.`
-                : 'No prompts available for the selected category.'
-              }
-            </p>
-            <button
-              onClick={() => {
-                setSearchQuery('');
-                setSelectedCategory('all');
-              }}
-              className="geoiq-btn-secondary"
-            >
-              Clear filters
-            </button>
-          </motion.div>
-        )}
-
-        {/* Load More */}
-        {filteredPrompts.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 }}
-            className="text-center"
-          >
-            <button className="geoiq-btn-secondary">
-              Load More Prompts
-            </button>
-          </motion.div>
-        )}
       </div>
     </DashboardLayout>
   );
