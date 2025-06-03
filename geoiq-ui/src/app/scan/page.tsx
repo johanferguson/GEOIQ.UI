@@ -530,7 +530,7 @@ export default function VisibilityScanningPage() {
                           <div className="flex items-start justify-between">
                             <div className="flex-1 pr-4">
                               <div className="flex items-center space-x-3 mb-2">
-                                <p className="text-sm font-medium text-gray-900 font-roboto flex-1">
+                                <p className="text-sm font-bold font-roboto flex-1" style={{ color: '#390099' }}>
                                   {result.prompt}
                                 </p>
                                 <button
