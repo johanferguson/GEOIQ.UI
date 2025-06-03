@@ -245,13 +245,10 @@ export default function VisibilityScanningPage() {
                       <h3 className="text-lg font-medium font-roboto" style={{ color: '#9E0059' }}>
                         Visibility Score
                       </h3>
-                      <div className="flex items-center space-x-2 text-xs text-slate-500 font-roboto">
-                        <div className="w-3 h-3 rounded-full bg-gradient-to-r from-[#FF0054] to-[#FF5400]"></div>
-                      </div>
                     </div>
                     
                     <div className="relative">
-                      <ResponsiveContainer width="100%" height={200}>
+                      <ResponsiveContainer width="100%" height={160}>
                         <PieChart>
                           <defs>
                             <linearGradient id="visibilityGradient" x1="0" y1="0" x2="0" y2="1">
@@ -274,8 +271,8 @@ export default function VisibilityScanningPage() {
                             ]}
                             cx="50%"
                             cy="50%"
-                            innerRadius={60}
-                            outerRadius={80}
+                            innerRadius={50}
+                            outerRadius={70}
                             startAngle={90}
                             endAngle={450}
                             dataKey="value"
@@ -293,7 +290,8 @@ export default function VisibilityScanningPage() {
                               color: '#374151',
                               fontFamily: 'Roboto, sans-serif',
                               boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                              backdropFilter: 'blur(10px)'
+                              backdropFilter: 'blur(10px)',
+                              zIndex: 1000
                             }}
                             labelStyle={{ 
                               color: '#9E0059', 
@@ -328,69 +326,72 @@ export default function VisibilityScanningPage() {
                       </h3>
                     </div>
                     
-                    <ResponsiveContainer width="100%" height={200}>
-                      <PieChart>
-                        <defs>
-                          <linearGradient id="positiveGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#390099" stopOpacity={1}/>
-                            <stop offset="100%" stopColor="rgba(255, 255, 255, 0.3)" stopOpacity={1}/>
-                          </linearGradient>
-                          <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#FFBD00" stopOpacity={1}/>
-                            <stop offset="100%" stopColor="rgba(255, 255, 255, 0.4)" stopOpacity={1}/>
-                          </linearGradient>
-                          <linearGradient id="negativeGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#FF0054" stopOpacity={1}/>
-                            <stop offset="100%" stopColor="rgba(255, 255, 255, 0.3)" stopOpacity={1}/>
-                          </linearGradient>
-                          <linearGradient id="mixedGradient" x1="0" y1="0" x2="0" y2="1">
-                            <stop offset="0%" stopColor="#FF5400" stopOpacity={1}/>
-                            <stop offset="100%" stopColor="rgba(255, 255, 255, 0.4)" stopOpacity={1}/>
-                          </linearGradient>
-                        </defs>
-                        <Pie
-                          data={currentData.mentionsBreakdown || []}
-                          cx="50%"
-                          cy="50%"
-                          outerRadius={80}
-                          dataKey="value"
-                          label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
-                          labelLine={false}
-                          fontSize={10}
-                          fontFamily="Roboto, sans-serif"
-                          fill="#374151"
-                        >
-                          {(currentData.mentionsBreakdown || []).map((entry: any, index: number) => {
-                            const gradientMap: Record<string, string> = {
-                              'Positive': 'url(#positiveGradient)',
-                              'Neutral': 'url(#neutralGradient)', 
-                              'Negative': 'url(#negativeGradient)',
-                              'Mixed': 'url(#mixedGradient)'
-                            };
-                            return (
-                              <Cell key={`cell-${index}`} fill={gradientMap[entry.name] || entry.color} />
-                            );
-                          })}
-                        </Pie>
-                        <Tooltip 
-                          contentStyle={{
-                            backgroundColor: 'rgba(255, 255, 255, 0.95)',
-                            border: 'none',
-                            borderRadius: '12px',
-                            fontSize: '13px',
-                            color: '#374151',
-                            fontFamily: 'Roboto, sans-serif',
-                            boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                            backdropFilter: 'blur(10px)'
-                          }}
-                          labelStyle={{ 
-                            color: '#9E0059', 
-                            fontWeight: 500,
-                            marginBottom: '4px'
-                          }}
-                        />
-                      </PieChart>
-                    </ResponsiveContainer>
+                    <div className="relative" style={{ zIndex: 1 }}>
+                      <ResponsiveContainer width="100%" height={160}>
+                        <PieChart>
+                          <defs>
+                            <linearGradient id="positiveGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#390099" stopOpacity={1}/>
+                              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.3)" stopOpacity={1}/>
+                            </linearGradient>
+                            <linearGradient id="neutralGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#FFBD00" stopOpacity={1}/>
+                              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.4)" stopOpacity={1}/>
+                            </linearGradient>
+                            <linearGradient id="negativeGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#FF0054" stopOpacity={1}/>
+                              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.3)" stopOpacity={1}/>
+                            </linearGradient>
+                            <linearGradient id="mixedGradient" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="0%" stopColor="#FF5400" stopOpacity={1}/>
+                              <stop offset="100%" stopColor="rgba(255, 255, 255, 0.4)" stopOpacity={1}/>
+                            </linearGradient>
+                          </defs>
+                          <Pie
+                            data={currentData.mentionsBreakdown || []}
+                            cx="50%"
+                            cy="50%"
+                            outerRadius={70}
+                            dataKey="value"
+                            label={({ name, percent }) => `${name} ${(percent * 100).toFixed(0)}%`}
+                            labelLine={false}
+                            fontSize={10}
+                            fontFamily="Roboto, sans-serif"
+                            fill="#374151"
+                          >
+                            {(currentData.mentionsBreakdown || []).map((entry: any, index: number) => {
+                              const gradientMap: Record<string, string> = {
+                                'Positive': 'url(#positiveGradient)',
+                                'Neutral': 'url(#neutralGradient)', 
+                                'Negative': 'url(#negativeGradient)',
+                                'Mixed': 'url(#mixedGradient)'
+                              };
+                              return (
+                                <Cell key={`cell-${index}`} fill={gradientMap[entry.name] || entry.color} />
+                              );
+                            })}
+                          </Pie>
+                          <Tooltip 
+                            contentStyle={{
+                              backgroundColor: 'rgba(255, 255, 255, 0.95)',
+                              border: 'none',
+                              borderRadius: '12px',
+                              fontSize: '13px',
+                              color: '#374151',
+                              fontFamily: 'Roboto, sans-serif',
+                              boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+                              backdropFilter: 'blur(10px)',
+                              zIndex: 1000
+                            }}
+                            labelStyle={{ 
+                              color: '#9E0059', 
+                              fontWeight: 500,
+                              marginBottom: '4px'
+                            }}
+                          />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
                   </motion.div>
 
                   {/* Competitive Analysis Radar Chart */}
@@ -402,13 +403,9 @@ export default function VisibilityScanningPage() {
                       <h3 className="text-lg font-medium font-roboto" style={{ color: '#9E0059' }}>
                         Competitive Analysis
                       </h3>
-                      <div className="flex items-center space-x-2 text-xs text-slate-500 font-roboto">
-                        <TrophyIcon className="w-4 h-4 text-[#FFBD00]" />
-                        <span>Performance Metrics</span>
-                      </div>
                     </div>
                     
-                    <ResponsiveContainer width="100%" height={200}>
+                    <ResponsiveContainer width="100%" height={160}>
                       <RadarChart data={currentData.radarData || []}>
                         <defs>
                           <linearGradient id="radarFillGradient" x1="0" y1="0" x2="0" y2="1">
@@ -437,7 +434,7 @@ export default function VisibilityScanningPage() {
                         <PolarAngleAxis 
                           dataKey="category" 
                           tick={{ 
-                            fontSize: 10, 
+                            fontSize: 9, 
                             fill: '#64748b',
                             fontFamily: 'Roboto, sans-serif',
                             fontWeight: 400
@@ -447,7 +444,7 @@ export default function VisibilityScanningPage() {
                           angle={90} 
                           domain={[0, 100]} 
                           tick={{ 
-                            fontSize: 9, 
+                            fontSize: 8, 
                             fill: '#94a3b8',
                             fontFamily: 'Roboto, sans-serif'
                           }}
@@ -479,7 +476,8 @@ export default function VisibilityScanningPage() {
                             color: '#374151',
                             fontFamily: 'Roboto, sans-serif',
                             boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                            backdropFilter: 'blur(10px)'
+                            backdropFilter: 'blur(10px)',
+                            zIndex: 1000
                           }}
                           labelStyle={{ 
                             color: '#9E0059', 
