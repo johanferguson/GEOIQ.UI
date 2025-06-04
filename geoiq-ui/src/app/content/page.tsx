@@ -25,22 +25,22 @@ import {
 } from '@heroicons/react/24/outline';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
-// Animation variants
+// Simplified, lighter animation variants for better performance
 const pageVariants = {
-  initial: { opacity: 0, y: 10 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-  exit: { opacity: 0, y: -10 }
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0 }
 };
 
 const cardVariants = {
-  initial: { opacity: 0, y: 8 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.3 } }
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.15 } }
 };
 
 const staggerContainer = {
   animate: {
     transition: {
-      staggerChildren: 0.05
+      staggerChildren: 0.02
     }
   }
 };
@@ -216,18 +216,18 @@ const generateSuggestedContent = (brandKey: string) => {
   };
 };
 
+// Optimized ContentCard with minimal animations
 const ContentCard = ({ children, className = '', onClick = () => {} }: { 
   children: React.ReactNode, 
   className?: string,
   onClick?: () => void 
 }) => (
-  <motion.div
-    variants={cardVariants}
-    className={`geoiq-card p-6 hover:shadow-lg transition-shadow duration-300 cursor-pointer ${className}`}
+  <div
+    className={`geoiq-card p-4 md:p-6 hover:shadow-lg transition-shadow duration-200 cursor-pointer ${className}`}
     onClick={onClick}
   >
     {children}
-  </motion.div>
+  </div>
 );
 
 const TagList = ({ tags }: { tags: string[] }) => (
@@ -244,6 +244,7 @@ const TagList = ({ tags }: { tags: string[] }) => (
   </div>
 );
 
+// Simplified ActionButton with minimal animations
 const ActionButton = ({ 
   children, 
   variant = 'primary', 
@@ -257,21 +258,19 @@ const ActionButton = ({
   onClick?: () => void;
   className?: string;
 }) => {
-  const baseClasses = "inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 font-roboto";
+  const baseClasses = "inline-flex items-center gap-2 px-3 py-2 md:px-4 md:py-2 rounded-lg text-sm font-medium transition-colors duration-150 font-roboto";
   const variantClasses = variant === 'primary' 
     ? "bg-white border border-gray-300 text-[#390099] hover:bg-gray-50 hover:border-[#390099] shadow-sm"
     : "bg-white border border-gray-300 text-[#390099] hover:bg-gray-50 hover:border-[#390099]";
 
   return (
-    <motion.button
+    <button
       className={`${baseClasses} ${variantClasses} ${className}`}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
       onClick={onClick}
     >
       {Icon && <Icon className="w-4 h-4" />}
       {children}
-    </motion.button>
+    </button>
   );
 };
 
@@ -289,22 +288,22 @@ export default function SuggestedContentPage() {
 
   const loadSuggestedContent = () => {
     setLoading(true);
-    // Simulate API call
+    // Simulate API call with shorter delay for better performance
     setTimeout(() => {
       setSuggestedContent(generateSuggestedContent(activeTab));
       setLoading(false);
-    }, 300);
+    }, 100);
   };
 
   const handleRegenerateContent = async () => {
     setRegenerating(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 800));
     setSuggestedContent(generateSuggestedContent(activeTab));
     setRegenerating(false);
   };
 
   const handleViewContent = (content: any, type: string) => {
-    // Navigate to content view page with parameters
+    // Use replace instead of push for better performance
     const params = new URLSearchParams({
       type: type,
       id: content.id,
@@ -350,103 +349,86 @@ export default function SuggestedContentPage() {
 
   return (
     <DashboardLayout>
-      {/* Centered 70% width container - matching prompts page */}
-      <div className="w-full max-w-none">
-        <div className="w-[70%] mx-auto">
+      {/* Responsive container */}
+      <div className="w-full max-w-none px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-6xl mx-auto">
           <motion.div 
-            className="space-y-6 bg-white min-h-full font-roboto"
+            className="space-y-4 md:space-y-6 bg-white min-h-full font-roboto"
             variants={pageVariants}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            {/* Page Header - matching prompts/brands pattern with correct font */}
-            <div className="flex items-center justify-between">
-              <motion.div
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4 }}
-                className="flex items-center space-x-3"
-              >
+            {/* Page Header - responsive design */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div className="flex items-center space-x-3">
                 <div className="p-2 rounded-lg" style={{ backgroundColor: '#39009920' }}>
                   <DocumentTextIcon className="w-5 h-5 text-[#390099]" />
                 </div>
                 <div>
-                  <h1 className="text-lg font-medium text-gray-900 font-roboto">
+                  <h1 className="text-lg md:text-xl font-medium text-gray-900 font-roboto">
                     Suggested Content
                   </h1>
-                  <p className="text-xs text-gray-600 font-roboto">
+                  <p className="text-xs md:text-sm text-gray-600 font-roboto">
                     AI-powered content recommendations to boost your brand visibility
                   </p>
                 </div>
-              </motion.div>
+              </div>
 
-              {/* Regenerate Button */}
-              <motion.button
+              {/* Regenerate Button - responsive */}
+              <button
                 onClick={handleRegenerateContent}
                 disabled={regenerating}
-                className="flex items-center space-x-2 bg-white border border-gray-300 text-[#390099] px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-gray-50 hover:border-[#390099] transition-all duration-200 font-roboto disabled:opacity-50"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.5 }}
+                className="flex items-center space-x-2 bg-white border border-gray-300 text-[#390099] px-3 py-2 md:px-4 md:py-2 rounded-lg text-sm font-medium shadow-sm hover:bg-gray-50 hover:border-[#390099] transition-colors duration-150 font-roboto disabled:opacity-50"
               >
                 <SparklesIcon className={`w-4 h-4 ${regenerating ? 'animate-pulse' : ''}`} />
-                <span>{regenerating ? 'Generating...' : 'Regenerate Content'}</span>
-              </motion.button>
+                <span className="hidden sm:inline">{regenerating ? 'Generating...' : 'Regenerate Content'}</span>
+                <span className="sm:hidden">{regenerating ? 'Generating...' : 'Regenerate'}</span>
+              </button>
             </div>
 
-            {/* Brand Navigation Tabs - exact copy from prompts/brands */}
-            <motion.div 
-              className="border-b border-gray-200"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.1 }}
-            >
-              <nav className="flex space-x-8">
+            {/* Brand Navigation Tabs - responsive */}
+            <div className="border-b border-gray-200 overflow-x-auto">
+              <nav className="flex space-x-4 md:space-x-8 min-w-max">
                 {Object.entries(BRANDS).map(([key, brand]) => {
                   const IconComponent = iconMap[brand.icon as keyof typeof iconMap];
                   return (
                     <button
                       key={key}
                       onClick={() => setActiveTab(key)}
-                      className={`flex items-center space-x-2 py-3 px-1 border-b-2 text-sm font-medium transition-colors font-roboto ${
+                      className={`flex items-center space-x-2 py-3 px-1 border-b-2 text-sm font-medium transition-colors font-roboto whitespace-nowrap ${
                         activeTab === key
                           ? 'border-[#390099] text-[#390099]'
                           : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
                       }`}
                     >
                       <IconComponent className="w-4 h-4" />
-                      <span>{brand.name}</span>
+                      <span className="hidden sm:inline">{brand.name}</span>
+                      <span className="sm:hidden">{brand.name.split(' ')[0]}</span>
                     </button>
                   );
                 })}
               </nav>
-            </motion.div>
+            </div>
 
-            {/* Content Type Filter Tabs */}
-            <motion.div 
-              className="border-b border-gray-100"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4, delay: 0.2 }}
-            >
-              <div className="flex items-center space-x-1 p-1 bg-gray-50 rounded-lg">
+            {/* Content Type Filter Tabs - responsive */}
+            <div className="border-b border-gray-100">
+              <div className="flex items-center space-x-1 p-1 bg-gray-50 rounded-lg overflow-x-auto">
                 {CONTENT_TYPES.map((type) => {
                   const IconComponent = type.icon;
                   return (
                     <button
                       key={type.id}
                       onClick={() => setActiveContentType(type.id)}
-                      className={`flex items-center space-x-2 px-4 py-2 rounded-md text-sm font-medium transition-all duration-200 font-roboto ${
+                      className={`flex items-center space-x-2 px-3 py-2 md:px-4 md:py-2 rounded-md text-sm font-medium transition-colors duration-150 font-roboto whitespace-nowrap ${
                         activeContentType === type.id
                           ? 'bg-white text-[#390099] shadow-sm border border-gray-200'
                           : 'text-gray-600 hover:text-gray-900 hover:bg-white/50'
                       }`}
                     >
                       <IconComponent className="w-4 h-4" />
-                      <span>{type.name}</span>
+                      <span className="hidden sm:inline">{type.name}</span>
+                      <span className="sm:hidden">{type.name.split(' ')[0]}</span>
                       <span className={`px-2 py-0.5 rounded-full text-xs ${
                         activeContentType === type.id 
                           ? 'bg-[#390099]/10 text-[#390099]' 
@@ -458,9 +440,9 @@ export default function SuggestedContentPage() {
                   );
                 })}
               </div>
-            </motion.div>
+            </div>
 
-            {/* Content Sections */}
+            {/* Content Sections - responsive grid */}
             <AnimatePresence mode="wait">
               {suggestedContent && (
                 <motion.div
@@ -469,35 +451,36 @@ export default function SuggestedContentPage() {
                   initial="initial"
                   animate="animate"
                   exit="initial"
-                  className="space-y-8"
+                  className="space-y-6 md:space-y-8"
                 >
                   {/* Blog Posts Section */}
                   {activeContentType === 'blog' && filteredContent.blogPosts && (
-                    <motion.div variants={cardVariants} className="space-y-4">
+                    <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-gray-900 font-roboto flex items-center gap-2" style={{ color: '#9E0059' }}>
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-900 font-roboto flex items-center gap-2" style={{ color: '#9E0059' }}>
                           <DocumentTextIcon className="w-5 h-5 text-[#390099]" />
-                          Blog Post Ideas
+                          <span className="hidden sm:inline">Blog Post Ideas</span>
+                          <span className="sm:hidden">Blog Posts</span>
                         </h2>
                         <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                          {filteredContent.blogPosts.length} suggestions
+                          {filteredContent.blogPosts.length}
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                         {filteredContent.blogPosts.map((post: any) => (
                           <ContentCard key={post.id}>
                             <div className="space-y-4">
                               <div>
-                                <h3 className="text-lg font-medium text-gray-900 font-roboto mb-2">
+                                <h3 className="text-base md:text-lg font-medium text-gray-900 font-roboto mb-2 line-clamp-2">
                                   {post.topic}
                                 </h3>
-                                <p className="text-sm text-gray-600 leading-relaxed font-roboto">
+                                <p className="text-sm text-gray-600 leading-relaxed font-roboto line-clamp-3">
                                   {post.description}
                                 </p>
                               </div>
                               
-                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-3 md:gap-4 text-xs text-gray-500 flex-wrap">
                                 <div className="flex items-center gap-1">
                                   <CalendarIcon className="w-3 h-3" />
                                   <span className="font-roboto">{post.estimatedReadTime}</span>
@@ -508,7 +491,7 @@ export default function SuggestedContentPage() {
                                 </div>
                               </div>
 
-                              <TagList tags={post.tags} />
+                              <TagList tags={post.tags.slice(0, 3)} />
                               
                               <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                                 <span className={`text-xs px-2 py-1 rounded-full font-roboto ${
@@ -516,7 +499,7 @@ export default function SuggestedContentPage() {
                                   post.difficulty === 'Medium' ? 'bg-yellow-100 text-yellow-700' :
                                   'bg-red-100 text-red-700'
                                 }`}>
-                                  {post.difficulty} Difficulty
+                                  {post.difficulty}
                                 </span>
                                 
                                 <div className="flex items-center gap-2">
@@ -525,13 +508,14 @@ export default function SuggestedContentPage() {
                                     icon={EyeIcon}
                                     onClick={() => handleViewContent(post, 'blog')}
                                   >
-                                    View
+                                    <span className="hidden sm:inline">View</span>
                                   </ActionButton>
                                   <ActionButton
                                     icon={DocumentTextIcon}
                                     onClick={() => handleUseContent('blog', post.id)}
                                   >
-                                    Use Topic
+                                    <span className="hidden sm:inline">Use Topic</span>
+                                    <span className="sm:hidden">Use</span>
                                   </ActionButton>
                                 </div>
                               </div>
@@ -539,47 +523,49 @@ export default function SuggestedContentPage() {
                           </ContentCard>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* LinkedIn Posts Section */}
                   {activeContentType === 'linkedin' && filteredContent.linkedinPosts && (
-                    <motion.div variants={cardVariants} className="space-y-4">
+                    <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-gray-900 font-roboto flex items-center gap-2" style={{ color: '#9E0059' }}>
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-900 font-roboto flex items-center gap-2" style={{ color: '#9E0059' }}>
                           <ShareIcon className="w-5 h-5 text-[#390099]" />
-                          LinkedIn Post Ideas
+                          <span className="hidden sm:inline">LinkedIn Post Ideas</span>
+                          <span className="sm:hidden">LinkedIn Posts</span>
                         </h2>
                         <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                          {filteredContent.linkedinPosts.length} suggestions
+                          {filteredContent.linkedinPosts.length}
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                         {filteredContent.linkedinPosts.map((post: any) => (
                           <ContentCard key={post.id}>
                             <div className="space-y-4">
                               <div>
-                                <h3 className="text-lg font-medium text-gray-900 font-roboto mb-2">
+                                <h3 className="text-base md:text-lg font-medium text-gray-900 font-roboto mb-2 line-clamp-2">
                                   {post.topic}
                                 </h3>
-                                <p className="text-sm text-gray-600 leading-relaxed font-roboto">
+                                <p className="text-sm text-gray-600 leading-relaxed font-roboto line-clamp-3">
                                   {post.description}
                                 </p>
                               </div>
                               
-                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-3 md:gap-4 text-xs text-gray-500 flex-wrap">
                                 <div className="flex items-center gap-1">
                                   <HeartIcon className="w-3 h-3" />
                                   <span className="font-roboto">{post.estimatedEngagement}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <CalendarIcon className="w-3 h-3" />
-                                  <span className="font-roboto">{post.bestTimeToPost}</span>
+                                  <span className="font-roboto hidden md:inline">{post.bestTimeToPost}</span>
+                                  <span className="font-roboto md:hidden">Tue 10AM</span>
                                 </div>
                               </div>
 
-                              <TagList tags={post.tags} />
+                              <TagList tags={post.tags.slice(0, 3)} />
                               
                               <div className="pt-2 border-t border-gray-100">
                                 <div className="flex items-center gap-2 justify-end">
@@ -588,13 +574,14 @@ export default function SuggestedContentPage() {
                                     icon={EyeIcon}
                                     onClick={() => handleViewContent(post, 'linkedin')}
                                   >
-                                    View
+                                    <span className="hidden sm:inline">View</span>
                                   </ActionButton>
                                   <ActionButton
                                     icon={ShareIcon}
                                     onClick={() => handleUseContent('linkedin', post.id)}
                                   >
-                                    Use Post
+                                    <span className="hidden sm:inline">Use Post</span>
+                                    <span className="sm:hidden">Use</span>
                                   </ActionButton>
                                 </div>
                               </div>
@@ -602,47 +589,48 @@ export default function SuggestedContentPage() {
                           </ContentCard>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* Reddit Questions Section */}
                   {activeContentType === 'reddit' && filteredContent.redditQuestions && (
-                    <motion.div variants={cardVariants} className="space-y-4">
+                    <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-gray-900 font-roboto flex items-center gap-2" style={{ color: '#9E0059' }}>
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-900 font-roboto flex items-center gap-2" style={{ color: '#9E0059' }}>
                           <QuestionMarkCircleIcon className="w-5 h-5 text-[#390099]" />
-                          Reddit Questions
+                          <span className="hidden sm:inline">Reddit Questions</span>
+                          <span className="sm:hidden">Reddit</span>
                         </h2>
                         <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                          {filteredContent.redditQuestions.length} questions
+                          {filteredContent.redditQuestions.length}
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                         {filteredContent.redditQuestions.map((question: any) => (
                           <ContentCard key={question.id}>
                             <div className="space-y-4">
                               <div>
-                                <h3 className="text-lg font-medium text-gray-900 font-roboto mb-2">
+                                <h3 className="text-base md:text-lg font-medium text-gray-900 font-roboto mb-2 line-clamp-2">
                                   {question.question}
                                 </h3>
-                                <p className="text-sm text-gray-600 leading-relaxed font-roboto">
+                                <p className="text-sm text-gray-600 leading-relaxed font-roboto line-clamp-3">
                                   {question.description}
                                 </p>
                               </div>
                               
-                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-3 md:gap-4 text-xs text-gray-500 flex-wrap">
                                 <div className="flex items-center gap-1">
                                   <span className="w-3 h-3 bg-orange-500 rounded-full"></span>
                                   <span className="font-roboto">{question.subreddit}</span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                   <ArrowTrendingUpIcon className="w-3 h-3" />
-                                  <span className="font-roboto">{question.estimatedUpvotes} upvotes</span>
+                                  <span className="font-roboto">{question.estimatedUpvotes}</span>
                                 </div>
                               </div>
 
-                              <TagList tags={question.tags} />
+                              <TagList tags={question.tags.slice(0, 3)} />
                               
                               <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                                 <span className={`text-xs px-2 py-1 rounded-full font-roboto ${
@@ -659,13 +647,14 @@ export default function SuggestedContentPage() {
                                     icon={EyeIcon}
                                     onClick={() => handleViewContent(question, 'reddit')}
                                   >
-                                    View
+                                    <span className="hidden sm:inline">View</span>
                                   </ActionButton>
                                   <ActionButton
                                     icon={ChatBubbleLeftRightIcon}
                                     onClick={() => handleUseContent('reddit', question.id)}
                                   >
-                                    Answer Question
+                                    <span className="hidden sm:inline">Answer</span>
+                                    <span className="sm:hidden">Use</span>
                                   </ActionButton>
                                 </div>
                               </div>
@@ -673,43 +662,44 @@ export default function SuggestedContentPage() {
                           </ContentCard>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   )}
 
                   {/* Quora Questions Section */}
                   {activeContentType === 'quora' && filteredContent.quoraQuestions && (
-                    <motion.div variants={cardVariants} className="space-y-4">
+                    <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <h2 className="text-xl font-semibold text-gray-900 font-roboto flex items-center gap-2" style={{ color: '#9E0059' }}>
+                        <h2 className="text-lg md:text-xl font-semibold text-gray-900 font-roboto flex items-center gap-2" style={{ color: '#9E0059' }}>
                           <QuestionMarkCircleIcon className="w-5 h-5 text-[#FF0054]" />
-                          Quora Questions
+                          <span className="hidden sm:inline">Quora Questions</span>
+                          <span className="sm:hidden">Quora</span>
                         </h2>
                         <span className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                          {filteredContent.quoraQuestions.length} questions
+                          {filteredContent.quoraQuestions.length}
                         </span>
                       </div>
                       
-                      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-4 md:gap-6">
                         {filteredContent.quoraQuestions.map((question: any) => (
                           <ContentCard key={question.id}>
                             <div className="space-y-4">
                               <div>
-                                <h3 className="text-lg font-medium text-gray-900 font-roboto mb-2">
+                                <h3 className="text-base md:text-lg font-medium text-gray-900 font-roboto mb-2 line-clamp-2">
                                   {question.question}
                                 </h3>
-                                <p className="text-sm text-gray-600 leading-relaxed font-roboto">
+                                <p className="text-sm text-gray-600 leading-relaxed font-roboto line-clamp-3">
                                   {question.description}
                                 </p>
                               </div>
                               
-                              <div className="flex items-center gap-4 text-xs text-gray-500">
+                              <div className="flex items-center gap-3 md:gap-4 text-xs text-gray-500">
                                 <div className="flex items-center gap-1">
                                   <HeartIcon className="w-3 h-3" />
                                   <span className="font-roboto">{question.followers} followers</span>
                                 </div>
                               </div>
 
-                              <TagList tags={question.tags} />
+                              <TagList tags={question.tags.slice(0, 3)} />
                               
                               <div className="flex items-center justify-between pt-2 border-t border-gray-100">
                                 <span className={`text-xs px-2 py-1 rounded-full font-roboto ${
@@ -726,13 +716,14 @@ export default function SuggestedContentPage() {
                                     icon={EyeIcon}
                                     onClick={() => handleViewContent(question, 'quora')}
                                   >
-                                    View
+                                    <span className="hidden sm:inline">View</span>
                                   </ActionButton>
                                   <ActionButton
                                     icon={ChatBubbleLeftRightIcon}
                                     onClick={() => handleUseContent('quora', question.id)}
                                   >
-                                    Answer Question
+                                    <span className="hidden sm:inline">Answer</span>
+                                    <span className="sm:hidden">Use</span>
                                   </ActionButton>
                                 </div>
                               </div>
@@ -740,7 +731,7 @@ export default function SuggestedContentPage() {
                           </ContentCard>
                         ))}
                       </div>
-                    </motion.div>
+                    </div>
                   )}
                 </motion.div>
               )}

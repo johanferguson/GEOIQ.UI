@@ -267,6 +267,10 @@
   .animate-pulse-glow {
     animation: pulse-glow 2s infinite;
   }
+
+  .text-balance {
+    text-wrap: balance;
+  }
 }
 
 @keyframes float {
@@ -284,5 +288,70 @@
   }
   50% {
     box-shadow: 0 0 20px rgba(57, 0, 153, 0.8), 0 0 30px rgba(57, 0, 153, 0.6);
+  }
+}
+
+/* Line clamp utilities for better text truncation */
+.line-clamp-1 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 1;
+}
+
+.line-clamp-2 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.line-clamp-3 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+.line-clamp-4 {
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 4;
+}
+
+/* Performance optimizations */
+* {
+  will-change: auto;
+}
+
+/* Smooth scrolling for better UX */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Optimize focus styles for accessibility and performance */
+*:focus {
+  outline: 2px solid #390099;
+  outline-offset: 2px;
+}
+
+/* Better mobile touch targets */
+@media (max-width: 768px) {
+  button, a, input, select, textarea {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

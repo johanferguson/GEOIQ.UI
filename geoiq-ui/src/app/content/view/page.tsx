@@ -15,11 +15,11 @@ import {
 } from '@heroicons/react/24/outline';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 
-// Animation variants
+// Simplified animation variants for better performance
 const pageVariants = {
-  initial: { opacity: 0, y: 10 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.4 } },
-  exit: { opacity: 0, y: -10 }
+  initial: { opacity: 0 },
+  animate: { opacity: 1, transition: { duration: 0.2 } },
+  exit: { opacity: 0 }
 };
 
 // Use the same brands from the main content page
@@ -168,6 +168,7 @@ const generateSuggestedContent = (brandKey: string) => {
   };
 };
 
+// Simplified ActionButton for better performance
 const ActionButton = ({ 
   children, 
   variant = 'primary', 
@@ -181,21 +182,19 @@ const ActionButton = ({
   onClick?: () => void;
   className?: string;
 }) => {
-  const baseClasses = "inline-flex items-center gap-2 px-6 py-3 rounded-lg text-sm font-medium transition-all duration-200 font-roboto";
+  const baseClasses = "inline-flex items-center gap-2 px-4 py-2 md:px-6 md:py-3 rounded-lg text-sm font-medium transition-colors duration-150 font-roboto";
   const variantClasses = variant === 'primary' 
     ? "bg-[#390099] text-white hover:bg-[#390099]/90 shadow-sm hover:shadow-md"
     : "bg-white border border-gray-300 text-[#390099] hover:bg-gray-50 hover:border-[#390099] shadow-sm";
 
   return (
-    <motion.button
+    <button
       className={`${baseClasses} ${variantClasses} ${className}`}
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
       onClick={onClick}
     >
       {Icon && <Icon className="w-4 h-4" />}
       {children}
-    </motion.button>
+    </button>
   );
 };
 
@@ -247,7 +246,7 @@ function ContentViewPageContent() {
   }
 
   const handleBack = () => {
-    router.push('/content');
+    router.back(); // Use router.back() for better performance instead of pushing new route
   };
 
   const handleEdit = () => {
@@ -288,57 +287,141 @@ function ContentViewPageContent() {
   const generateFullBlogHTML = () => {
     const title = getContentTitle();
     const description = content.description;
+    const brandInfo = BRANDS[brand as keyof typeof BRANDS];
     
     return `
-      <article class="blog-post">
+      <article class="corporate-blog-post">
         <header class="blog-header">
+          <div class="header-meta">
+            <span class="brand-badge">${brandInfo.name}</span>
+            <time class="publish-date">${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</time>
+          </div>
           <h1 class="blog-title">${title}</h1>
           <div class="blog-meta">
-            <span class="read-time">${content.estimatedReadTime}</span>
-            <span class="seo-score">SEO Score: ${content.seoScore}%</span>
-            <span class="difficulty ${content.difficulty.toLowerCase()}">${content.difficulty} Difficulty</span>
+            <span class="read-time"><i class="icon-clock"></i>${content.estimatedReadTime}</span>
+            <span class="seo-score success"><i class="icon-chart"></i>SEO Score: ${content.seoScore}%</span>
+            <span class="difficulty ${content.difficulty.toLowerCase()}"><i class="icon-level"></i>${content.difficulty} Difficulty</span>
+          </div>
+          <div class="blog-excerpt">
+            <p>${description}</p>
           </div>
         </header>
         
         <div class="blog-content">
-          <p class="lead">${description}</p>
+          <section class="content-section">
+            <h2>Executive Summary</h2>
+            <div class="highlight-box">
+              <p>In today's competitive business landscape, <strong>${content.tags[0].toLowerCase()}</strong> has emerged as a critical differentiator for organizations seeking sustainable growth. This comprehensive analysis explores how ${brandInfo.name} is setting new industry standards through innovative approaches and strategic initiatives.</p>
+            </div>
+          </section>
+
+          <section class="content-section">
+            <h2>Key Business Benefits</h2>
+            <div class="benefits-grid">
+              ${content.tags.map((tag: string, index: number) => `
+                <div class="benefit-card">
+                  <div class="benefit-number">${index + 1}</div>
+                  <h3>${tag}</h3>
+                  <p>Comprehensive analysis of how ${tag.toLowerCase()} contributes to organizational success, driving measurable improvements in operational efficiency and market competitiveness.</p>
+                </div>
+              `).join('')}
+            </div>
+          </section>
           
-          <h2>Introduction</h2>
-          <p>In today's rapidly evolving business landscape, <strong>${content.tags[0].toLowerCase()}</strong> has become a critical factor for success. This comprehensive guide explores how organizations can leverage innovative approaches to drive growth and efficiency.</p>
+          <section class="content-section">
+            <h2>Strategic Implementation Framework</h2>
+            <p>Organizations seeking to maximize their investment should consider the following structured approach:</p>
+            
+            <div class="implementation-steps">
+              <div class="step-item">
+                <div class="step-number">01</div>
+                <div class="step-content">
+                  <h3>Strategic Assessment</h3>
+                  <p>Comprehensive evaluation of current organizational capabilities, infrastructure, and market positioning to identify optimization opportunities.</p>
+                </div>
+              </div>
+              
+              <div class="step-item">
+                <div class="step-number">02</div>
+                <div class="step-content">
+                  <h3>Planning & Roadmap Development</h3>
+                  <p>Creation of detailed implementation timeline with clearly defined milestones, resource allocation, and success metrics.</p>
+                </div>
+              </div>
+              
+              <div class="step-item">
+                <div class="step-number">03</div>
+                <div class="step-content">
+                  <h3>Execution & Change Management</h3>
+                  <p>Systematic deployment of solutions with comprehensive change management protocols and stakeholder engagement strategies.</p>
+                </div>
+              </div>
+              
+              <div class="step-item">
+                <div class="step-number">04</div>
+                <div class="step-content">
+                  <h3>Optimization & Continuous Improvement</h3>
+                  <p>Ongoing monitoring, performance analysis, and iterative refinement to ensure sustained value delivery and competitive advantage.</p>
+                </div>
+              </div>
+            </div>
+          </section>
           
-          <h2>Key Benefits</h2>
-          <ul>
-            ${content.tags.map((tag: string, index: number) => `<li><strong>${tag}</strong>: Detailed explanation of how this aspect contributes to overall success and drives measurable results for organizations.</li>`).join('')}
-          </ul>
+          <section class="content-section">
+            <div class="quote-section">
+              <blockquote>
+                "The future belongs to organizations that can effectively balance technological innovation with human-centered design principles, creating solutions that drive both efficiency and engagement."
+              </blockquote>
+              <cite>— Industry Research Institute</cite>
+            </div>
+          </section>
           
-          <h2>Implementation Strategy</h2>
-          <p>To successfully implement these solutions, organizations should consider the following approach:</p>
-          <ol>
-            <li><strong>Assessment Phase</strong>: Evaluate current capabilities and identify areas for improvement</li>
-            <li><strong>Planning Phase</strong>: Develop a comprehensive roadmap with clear milestones</li>
-            <li><strong>Execution Phase</strong>: Deploy solutions with proper change management</li>
-            <li><strong>Optimization Phase</strong>: Continuously monitor and refine processes</li>
-          </ol>
+          <section class="content-section">
+            <h2>Industry Best Practices</h2>
+            <div class="best-practices">
+              <div class="practice-item">
+                <h4>📊 Data-Driven Decision Making</h4>
+                <p>Establish clear metrics and KPIs to measure success and guide strategic decisions.</p>
+              </div>
+              <div class="practice-item">
+                <h4>🤝 Stakeholder Engagement</h4>
+                <p>Ensure comprehensive buy-in across all organizational levels through effective communication and training.</p>
+              </div>
+              <div class="practice-item">
+                <h4>🔄 Agile Implementation</h4>
+                <p>Adopt flexible methodologies that allow for rapid iteration and continuous improvement.</p>
+              </div>
+              <div class="practice-item">
+                <h4>📈 Performance Monitoring</h4>
+                <p>Implement robust tracking systems to monitor progress and identify optimization opportunities.</p>
+              </div>
+            </div>
+          </section>
           
-          <blockquote>
-            "The key to successful transformation lies in understanding both the technical requirements and the human elements of change." - Industry Expert
-          </blockquote>
+          <section class="content-section conclusion">
+            <h2>Conclusion & Next Steps</h2>
+            <p>Organizations that successfully implement these strategic frameworks position themselves for sustained competitive advantage in an increasingly complex marketplace. The key to success lies in maintaining a balance between technological innovation and operational excellence while ensuring alignment with broader business objectives.</p>
+            
+            <div class="action-items">
+              <h3>Recommended Action Items:</h3>
+              <ul>
+                <li>Conduct comprehensive organizational assessment</li>
+                <li>Develop detailed implementation roadmap</li>
+                <li>Establish cross-functional project team</li>
+                <li>Define success metrics and monitoring protocols</li>
+              </ul>
+            </div>
+          </section>
           
-          <h2>Best Practices</h2>
-          <p>Based on extensive research and real-world implementations, here are the most effective practices:</p>
-          <ul>
-            <li>Start with a clear vision and measurable objectives</li>
-            <li>Engage stakeholders throughout the process</li>
-            <li>Implement robust training and support systems</li>
-            <li>Monitor progress and adjust strategies as needed</li>
-          </ul>
-          
-          <h2>Conclusion</h2>
-          <p>By following these best practices and leveraging the right tools, organizations can achieve significant improvements in their operations and competitive positioning. The journey requires dedication, but the results speak for themselves.</p>
-          
-          <div class="call-to-action">
-            <h3>Ready to Get Started?</h3>
-            <p>Contact our team to learn how we can help you implement these strategies in your organization.</p>
+          <div class="cta-section">
+            <div class="cta-content">
+              <h3>Ready to Transform Your Organization?</h3>
+              <p>Partner with ${brandInfo.name} to unlock your organization's full potential through strategic innovation and proven methodologies.</p>
+              <div class="cta-buttons">
+                <button class="cta-primary">Schedule Consultation</button>
+                <button class="cta-secondary">Download Whitepaper</button>
+              </div>
+            </div>
           </div>
         </div>
       </article>
@@ -380,30 +463,25 @@ The best approach depends on your specific requirements and context, but followi
 
   return (
     <DashboardLayout>
-      {/* Header with Back Button */}
-      <div className="w-full max-w-none">
-        <div className="w-[70%] mx-auto">
+      {/* Responsive container */}
+      <div className="w-full max-w-none px-4 sm:px-6 lg:px-8">
+        <div className="w-full max-w-5xl mx-auto">
           <motion.div 
-            className="space-y-6 bg-white min-h-full font-roboto"
+            className="space-y-4 md:space-y-6 bg-white min-h-full font-roboto"
             variants={pageVariants}
             initial="initial"
             animate="animate"
             exit="exit"
           >
-            {/* Back Navigation */}
-            <div className="flex items-center justify-between">
-              <motion.button
+            {/* Back Navigation - Responsive */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <button
                 onClick={handleBack}
                 className="flex items-center space-x-2 text-[#390099] hover:text-[#390099]/80 transition-colors font-roboto"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ duration: 0.4 }}
               >
                 <ArrowLeftIcon className="w-5 h-5" />
                 <span className="text-sm font-medium">Back to Suggested Content</span>
-              </motion.button>
+              </button>
 
               <div className="flex items-center space-x-2">
                 {!isEditing ? (
@@ -412,7 +490,7 @@ The best approach depends on your specific requirements and context, but followi
                     icon={PencilIcon}
                     onClick={handleEdit}
                   >
-                    Edit
+                    <span className="hidden sm:inline">Edit</span>
                   </ActionButton>
                 ) : (
                   <ActionButton
@@ -420,19 +498,20 @@ The best approach depends on your specific requirements and context, but followi
                     icon={CheckIcon}
                     onClick={handleSave}
                   >
-                    Save Changes
+                    <span className="hidden sm:inline">Save Changes</span>
+                    <span className="sm:hidden">Save</span>
                   </ActionButton>
                 )}
               </div>
             </div>
 
-            {/* Content Header */}
-            <div className="flex items-start gap-4 pb-6 border-b border-gray-200">
+            {/* Content Header - Responsive */}
+            <div className="flex items-start gap-4 pb-4 md:pb-6 border-b border-gray-200">
               <div className="p-3 rounded-lg bg-[#390099]/10">
                 <ContentIcon className="w-6 h-6 text-[#390099]" />
               </div>
               <div className="flex-1">
-                <h1 className="text-2xl font-bold text-gray-900 font-roboto mb-2">
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900 font-roboto mb-2">
                   {isEditing ? 'Edit Content' : 'Preview Content'}
                 </h1>
                 <p className="text-sm text-gray-600 font-roboto capitalize">
@@ -452,7 +531,7 @@ The best approach depends on your specific requirements and context, but followi
               </div>
             </div>
 
-            {/* Content Display */}
+            {/* Content Display - Responsive */}
             <div className="max-w-none">
               {isEditing ? (
                 <div className="space-y-6">
@@ -503,12 +582,8 @@ The best approach depends on your specific requirements and context, but followi
                 <div className="prose prose-lg max-w-none">
                   {type === 'blog' ? (
                     <div 
-                      className="blog-content font-roboto"
+                      className="corporate-blog-content font-roboto"
                       dangerouslySetInnerHTML={{ __html: generateFullBlogHTML() }}
-                      style={{
-                        lineHeight: '1.7',
-                        color: '#374151'
-                      }}
                     />
                   ) : (
                     <div className="whitespace-pre-wrap font-roboto text-gray-800 leading-relaxed text-base">
@@ -519,8 +594,8 @@ The best approach depends on your specific requirements and context, but followi
               )}
             </div>
 
-            {/* Action Footer */}
-            <div className="flex items-center justify-between pt-6 border-t border-gray-200 bg-gray-50 -mx-6 px-6 py-6 mt-8">
+            {/* Action Footer - Responsive */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-6 border-t border-gray-200 bg-gray-50 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 py-6 mt-8">
               <div className="text-sm text-gray-600 font-roboto">
                 {type === 'blog' && `${content.estimatedReadTime} • SEO Score: ${content.seoScore}%`}
                 {type === 'linkedin' && `Expected: ${content.estimatedEngagement} • Best time: ${content.bestTimeToPost}`}
@@ -539,122 +614,487 @@ The best approach depends on your specific requirements and context, but followi
         </div>
       </div>
 
-      {/* Custom Blog Styles */}
-      <style jsx>{`
-        .blog-content h1.blog-title {
-          font-size: 2.5rem;
-          font-weight: 800;
-          line-height: 1.2;
-          color: #1f2937;
-          margin-bottom: 1rem;
-          font-family: 'Roboto', sans-serif;
+      {/* Enhanced Corporate Blog Styles */}
+      <style jsx global>{`
+        .corporate-blog-content {
+          font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+          line-height: 1.7;
+          color: #2d3748;
         }
-        
-        .blog-meta {
+
+        .corporate-blog-post {
+          max-width: 100%;
+          margin: 0 auto;
+          background: white;
+        }
+
+        .blog-header {
+          margin-bottom: 3rem;
+          padding: 0 0 2rem 0;
+          border-bottom: 2px solid #e2e8f0;
+        }
+
+        .header-meta {
           display: flex;
+          align-items: center;
           gap: 1rem;
-          margin-bottom: 2rem;
-          padding-bottom: 1rem;
-          border-bottom: 2px solid #f3f4f6;
+          margin-bottom: 1.5rem;
+          flex-wrap: wrap;
         }
-        
-        .blog-meta span {
+
+        .brand-badge {
+          background: linear-gradient(135deg, #390099 0%, #9E0059 100%);
+          color: white;
+          padding: 0.5rem 1rem;
+          border-radius: 20px;
           font-size: 0.875rem;
-          padding: 0.25rem 0.75rem;
-          border-radius: 9999px;
-          background: #f9fafb;
-          color: #6b7280;
+          font-weight: 600;
+          text-transform: uppercase;
+          letter-spacing: 0.025em;
+        }
+
+        .publish-date {
+          color: #64748b;
+          font-size: 0.875rem;
           font-weight: 500;
         }
-        
-        .blog-meta .seo-score {
+
+        .blog-title {
+          font-size: clamp(1.875rem, 4vw, 3rem);
+          font-weight: 800;
+          line-height: 1.1;
+          color: #1a202c;
+          margin: 0 0 1.5rem 0;
+          letter-spacing: -0.025em;
+        }
+
+        .blog-meta {
+          display: flex;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+          flex-wrap: wrap;
+        }
+
+        .blog-meta span {
+          display: flex;
+          align-items: center;
+          font-size: 0.875rem;
+          padding: 0.5rem 1rem;
+          border-radius: 25px;
+          font-weight: 600;
+          background: #f8fafc;
+          color: #475569;
+          border: 1px solid #e2e8f0;
+        }
+
+        .blog-meta .success {
           background: #dcfce7;
           color: #166534;
+          border-color: #bbf7d0;
         }
-        
+
         .blog-meta .difficulty.low {
           background: #dcfce7;
           color: #166534;
+          border-color: #bbf7d0;
         }
-        
+
         .blog-meta .difficulty.medium {
           background: #fef3c7;
           color: #92400e;
+          border-color: #fde68a;
         }
-        
+
         .blog-meta .difficulty.high {
           background: #fecaca;
           color: #991b1b;
+          border-color: #fca5a5;
         }
-        
+
+        .blog-excerpt {
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          padding: 2rem;
+          border-radius: 12px;
+          border-left: 4px solid #390099;
+          margin-top: 2rem;
+        }
+
+        .blog-excerpt p {
+          font-size: 1.125rem;
+          line-height: 1.6;
+          color: #4a5568;
+          margin: 0;
+          font-weight: 500;
+        }
+
+        .blog-content {
+          margin-top: 3rem;
+        }
+
+        .content-section {
+          margin-bottom: 3rem;
+        }
+
         .blog-content h2 {
-          font-size: 1.75rem;
+          font-size: clamp(1.5rem, 3vw, 2rem);
           font-weight: 700;
-          color: #1f2937;
-          margin: 2rem 0 1rem 0;
-          line-height: 1.3;
+          color: #1a202c;
+          margin: 3rem 0 1.5rem 0;
+          line-height: 1.2;
+          position: relative;
+          padding-bottom: 0.75rem;
+          border-bottom: 2px solid #e2e8f0;
         }
-        
+
         .blog-content h3 {
-          font-size: 1.25rem;
+          font-size: 1.375rem;
           font-weight: 600;
-          color: #374151;
+          color: #2d3748;
+          margin: 2rem 0 1rem 0;
+        }
+
+        .blog-content h4 {
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: #4a5568;
           margin: 1.5rem 0 0.75rem 0;
         }
-        
+
         .blog-content p {
-          margin-bottom: 1.25rem;
-          color: #4b5563;
+          margin-bottom: 1.5rem;
+          color: #4a5568;
+          font-size: 1rem;
           line-height: 1.7;
         }
-        
-        .blog-content p.lead {
-          font-size: 1.125rem;
-          font-weight: 400;
-          color: #6b7280;
-          margin-bottom: 2rem;
-          line-height: 1.6;
-        }
-        
-        .blog-content ul, .blog-content ol {
-          margin: 1.25rem 0;
-          padding-left: 1.5rem;
-        }
-        
-        .blog-content li {
-          margin-bottom: 0.75rem;
-          line-height: 1.6;
-          color: #4b5563;
-        }
-        
-        .blog-content blockquote {
-          border-left: 4px solid #390099;
-          padding-left: 1.5rem;
-          margin: 2rem 0;
-          font-style: italic;
-          color: #6b7280;
-          background: #f9fafb;
-          padding: 1.5rem;
-          border-radius: 0.5rem;
-        }
-        
-        .blog-content .call-to-action {
+
+        .highlight-box {
           background: linear-gradient(135deg, #390099 0%, #9E0059 100%);
           color: white;
           padding: 2rem;
-          border-radius: 0.75rem;
+          border-radius: 12px;
           margin: 2rem 0;
-          text-align: center;
+          box-shadow: 0 10px 25px rgba(57, 0, 153, 0.15);
         }
-        
-        .blog-content .call-to-action h3 {
+
+        .highlight-box p {
           color: white;
-          margin-bottom: 0.5rem;
+          margin: 0;
+          font-size: 1.125rem;
+          line-height: 1.6;
         }
-        
-        .blog-content .call-to-action p {
+
+        .benefits-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 1.5rem;
+          margin: 2rem 0;
+        }
+
+        .benefit-card {
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 1.5rem;
+          box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+          transition: all 0.2s ease;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .benefit-card::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(135deg, #390099 0%, #9E0059 100%);
+        }
+
+        .benefit-card:hover {
+          box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+          transform: translateY(-2px);
+        }
+
+        .benefit-number {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          width: 2.5rem;
+          height: 2.5rem;
+          background: linear-gradient(135deg, #390099 0%, #9E0059 100%);
+          color: white;
+          border-radius: 50%;
+          font-weight: 700;
+          font-size: 0.875rem;
+          margin-bottom: 1rem;
+        }
+
+        .benefit-card h3 {
+          margin: 0 0 0.75rem 0;
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: #1a202c;
+        }
+
+        .benefit-card p {
+          margin: 0;
+          font-size: 0.875rem;
+          color: #64748b;
+          line-height: 1.6;
+        }
+
+        .implementation-steps {
+          margin: 2rem 0;
+        }
+
+        .step-item {
+          display: flex;
+          gap: 1.5rem;
+          margin-bottom: 2rem;
+          padding: 1.5rem;
+          background: #f8fafc;
+          border-radius: 12px;
+          border-left: 4px solid #390099;
+        }
+
+        .step-number {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          width: 3rem;
+          height: 3rem;
+          background: linear-gradient(135deg, #390099 0%, #9E0059 100%);
+          color: white;
+          border-radius: 50%;
+          font-weight: 700;
+          font-size: 1.125rem;
+          flex-shrink: 0;
+        }
+
+        .step-content h3 {
+          margin: 0 0 0.5rem 0;
+          font-size: 1.25rem;
+          font-weight: 600;
+          color: #1a202c;
+        }
+
+        .step-content p {
+          margin: 0;
+          color: #4a5568;
+          line-height: 1.6;
+        }
+
+        .quote-section {
+          margin: 3rem 0;
+          text-align: center;
+          padding: 3rem 2rem;
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          border-radius: 16px;
+          position: relative;
+        }
+
+        .quote-section::before {
+          content: '"';
+          position: absolute;
+          top: 1rem;
+          left: 50%;
+          transform: translateX(-50%);
+          font-size: 4rem;
+          color: #390099;
+          opacity: 0.3;
+          font-family: serif;
+        }
+
+        .quote-section blockquote {
+          font-size: 1.375rem;
+          font-style: italic;
+          color: #2d3748;
+          margin: 0;
+          line-height: 1.5;
+          font-weight: 500;
+          max-width: 600px;
+          margin: 0 auto;
+        }
+
+        .quote-section cite {
+          display: block;
+          margin-top: 1.5rem;
+          font-size: 1rem;
+          color: #64748b;
+          font-weight: 600;
+        }
+
+        .best-practices {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+          gap: 1.5rem;
+          margin: 2rem 0;
+        }
+
+        .practice-item {
+          background: white;
+          border: 1px solid #e2e8f0;
+          border-radius: 12px;
+          padding: 1.5rem;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .practice-item h4 {
+          margin: 0 0 0.75rem 0;
+          font-size: 1rem;
+          font-weight: 600;
+          color: #1a202c;
+          display: flex;
+          align-items: center;
+          gap: 0.5rem;
+        }
+
+        .practice-item p {
+          margin: 0;
+          font-size: 0.875rem;
+          color: #64748b;
+          line-height: 1.5;
+        }
+
+        .conclusion {
+          background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+          padding: 2.5rem;
+          border-radius: 16px;
+          border: 1px solid #e2e8f0;
+        }
+
+        .action-items {
+          margin-top: 2rem;
+          padding-top: 1.5rem;
+          border-top: 1px solid #e2e8f0;
+        }
+
+        .action-items h3 {
+          margin: 0 0 1rem 0;
+          font-size: 1.125rem;
+          font-weight: 600;
+          color: #390099;
+        }
+
+        .action-items ul {
+          margin: 0;
+          padding-left: 1.5rem;
+        }
+
+        .action-items li {
+          margin-bottom: 0.5rem;
+          color: #4a5568;
+          line-height: 1.5;
+        }
+
+        .cta-section {
+          background: linear-gradient(135deg, #390099 0%, #9E0059 100%);
+          color: white;
+          padding: 3rem 2rem;
+          border-radius: 16px;
+          margin: 3rem 0;
+          text-align: center;
+          box-shadow: 0 20px 40px rgba(57, 0, 153, 0.2);
+        }
+
+        .cta-content h3 {
+          margin: 0 0 1rem 0;
+          font-size: 2rem;
+          font-weight: 700;
+          color: white;
+        }
+
+        .cta-content p {
+          margin: 0 0 2rem 0;
+          font-size: 1.125rem;
           color: rgba(255, 255, 255, 0.9);
-          margin-bottom: 0;
+          max-width: 500px;
+          margin-left: auto;
+          margin-right: auto;
+        }
+
+        .cta-buttons {
+          display: flex;
+          gap: 1rem;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+
+        .cta-primary, .cta-secondary {
+          padding: 0.875rem 2rem;
+          border-radius: 8px;
+          font-weight: 600;
+          font-size: 0.875rem;
+          transition: all 0.2s ease;
+          cursor: pointer;
+          border: none;
+        }
+
+        .cta-primary {
+          background: white;
+          color: #390099;
+        }
+
+        .cta-primary:hover {
+          background: #f8fafc;
+          transform: translateY(-1px);
+        }
+
+        .cta-secondary {
+          background: transparent;
+          color: white;
+          border: 2px solid white;
+        }
+
+        .cta-secondary:hover {
+          background: white;
+          color: #390099;
+        }
+
+        @media (max-width: 768px) {
+          .blog-header {
+            margin-bottom: 2rem;
+          }
+
+          .benefits-grid {
+            grid-template-columns: 1fr;
+          }
+
+          .best-practices {
+            grid-template-columns: 1fr;
+          }
+
+          .step-item {
+            flex-direction: column;
+            text-align: center;
+          }
+
+          .quote-section {
+            padding: 2rem 1rem;
+          }
+
+          .quote-section blockquote {
+            font-size: 1.125rem;
+          }
+
+          .cta-section {
+            padding: 2rem 1rem;
+          }
+
+          .cta-content h3 {
+            font-size: 1.5rem;
+          }
+
+          .cta-buttons {
+            flex-direction: column;
+            align-items: center;
+          }
+
+          .cta-primary, .cta-secondary {
+            width: 100%;
+            max-width: 300px;
+          }
         }
       `}</style>
     </DashboardLayout>
