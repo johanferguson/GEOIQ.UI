@@ -282,42 +282,47 @@ export default function SuggestedContentPage() {
   const [suggestedContent, setSuggestedContent] = useState<any>(null);
   const [regenerating, setRegenerating] = useState(false);
 
-  useEffect(() => {
-    loadSuggestedContent();
-  }, [activeTab]);
-
-  const loadSuggestedContent = () => {
+  // Memoize the loadSuggestedContent function to prevent recreation on every render
+  const loadSuggestedContent = React.useCallback(() => {
     setLoading(true);
     // Simulate API call with shorter delay for better performance
-    setTimeout(() => {
+    const timeoutId = setTimeout(() => {
       setSuggestedContent(generateSuggestedContent(activeTab));
       setLoading(false);
     }, 100);
-  };
+    
+    // Return cleanup function
+    return () => clearTimeout(timeoutId);
+  }, [activeTab]);
 
-  const handleRegenerateContent = async () => {
+  useEffect(() => {
+    const cleanup = loadSuggestedContent();
+    return cleanup;
+  }, [loadSuggestedContent]);
+
+  const handleRegenerateContent = React.useCallback(async () => {
     setRegenerating(true);
     await new Promise(resolve => setTimeout(resolve, 800));
     setSuggestedContent(generateSuggestedContent(activeTab));
     setRegenerating(false);
-  };
+  }, [activeTab]);
 
-  const handleViewContent = (content: any, type: string) => {
-    // Use replace instead of push for better performance
+  const handleViewContent = React.useCallback((content: any, type: string) => {
+    // Use router.push for navigation
     const params = new URLSearchParams({
       type: type,
       id: content.id,
       brand: activeTab
     });
     router.push(`/content/view?${params.toString()}`);
-  };
+  }, [router, activeTab]);
 
-  const handleUseContent = (type: string, id: string) => {
+  const handleUseContent = React.useCallback((type: string, id: string) => {
     console.log(`Using ${type} content:`, id);
     // Handle content usage logic here
-  };
+  }, []);
 
-  const getFilteredContent = () => {
+  const getFilteredContent = React.useMemo(() => {
     if (!suggestedContent) return {};
     
     switch (activeContentType) {
@@ -332,7 +337,7 @@ export default function SuggestedContentPage() {
       default:
         return { blogPosts: suggestedContent.blogPosts };
     }
-  };
+  }, [suggestedContent, activeContentType]);
 
   if (loading && !suggestedContent) {
     return (
@@ -345,7 +350,7 @@ export default function SuggestedContentPage() {
   }
 
   const currentBrand = BRANDS[activeTab as keyof typeof BRANDS];
-  const filteredContent = getFilteredContent();
+  const filteredContent = getFilteredContent;
 
   return (
     <DashboardLayout>

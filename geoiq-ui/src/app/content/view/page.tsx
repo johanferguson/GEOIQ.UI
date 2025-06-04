@@ -209,8 +209,12 @@ function ContentViewPageContent() {
   const id = searchParams.get('id') || '';
   const brand = searchParams.get('brand') || 'geoiq';
 
+  // Memoize allContent to prevent infinite re-renders
+  const allContent = React.useMemo(() => {
+    return generateSuggestedContent(brand);
+  }, [brand]);
+
   // Get the content based on URL parameters
-  const allContent = generateSuggestedContent(brand);
   const content = React.useMemo(() => {
     switch (type) {
       case 'blog':
@@ -224,47 +228,18 @@ function ContentViewPageContent() {
       default:
         return null;
     }
-  }, [type, id, brand, allContent]);
+  }, [type, id, allContent]);
 
+  // Fix useEffect to only run when content actually changes
   useEffect(() => {
-    if (content) {
+    if (content && (!editedContent || editedContent.id !== content.id)) {
       setEditedContent(content);
     }
-  }, [content]);
+  }, [content, editedContent]);
 
-  if (!content) {
-    return (
-      <DashboardLayout>
-        <div className="flex items-center justify-center h-96">
-          <div className="text-center">
-            <h3 className="text-lg font-medium text-gray-900 mb-2 font-roboto">Content not found</h3>
-            <p className="text-gray-600 font-roboto">The requested content could not be found.</p>
-          </div>
-        </div>
-      </DashboardLayout>
-    );
-  }
-
-  const handleBack = () => {
-    router.back(); // Use router.back() for better performance instead of pushing new route
-  };
-
-  const handleEdit = () => {
-    setIsEditing(true);
-  };
-
-  const handleSave = () => {
-    setIsEditing(false);
-    // Handle save logic here
-  };
-
-  const handleUse = () => {
-    console.log(`Using ${type} content:`, content.id);
-    // Handle content usage logic here
-    alert(`Content "${getContentTitle()}" has been marked for use!`);
-  };
-
-  const getContentTitle = () => {
+  // Memoize functions to prevent unnecessary re-renders
+  const getContentTitle = React.useCallback(() => {
+    if (!content) return 'Content';
     switch (type) {
       case 'blog': return content.topic;
       case 'linkedin': return content.topic;
@@ -272,9 +247,9 @@ function ContentViewPageContent() {
       case 'quora': return content.question;
       default: return 'Content';
     }
-  };
+  }, [content, type]);
 
-  const getContentIcon = () => {
+  const getContentIcon = React.useCallback(() => {
     switch (type) {
       case 'blog': return DocumentTextIcon;
       case 'linkedin': return ShareIcon;
@@ -282,9 +257,12 @@ function ContentViewPageContent() {
       case 'quora': return QuestionMarkCircleIcon;
       default: return DocumentTextIcon;
     }
-  };
+  }, [type]);
 
-  const generateFullBlogHTML = () => {
+  // Memoize the blog HTML generation to prevent recreating on every render
+  const generateFullBlogHTML = React.useCallback(() => {
+    if (!content) return '';
+    
     const title = getContentTitle();
     const description = content.description;
     const brandInfo = BRANDS[brand as keyof typeof BRANDS];
@@ -426,9 +404,10 @@ function ContentViewPageContent() {
         </div>
       </article>
     `;
-  };
+  }, [content, brand, getContentTitle]);
 
-  const generateLinkedInContent = () => {
+  const generateLinkedInContent = React.useCallback(() => {
+    if (!content) return '';
     return `${getContentTitle()}
 
 ${content.description}
@@ -439,9 +418,10 @@ ${content.tags.map((tag: string) => `• ${tag}`).join('\n')}
 What are your thoughts on this approach? Share your experiences in the comments below.
 
 #Innovation #Technology #Business #Growth #${BRANDS[brand as keyof typeof BRANDS].name.replace(/\s+/g, '')}`;
-  };
+  }, [content, brand, getContentTitle]);
 
-  const generateAnswerContent = () => {
+  const generateAnswerContent = React.useCallback(() => {
+    if (!content) return '';
     return `**Question:** ${getContentTitle()}
 
 **Detailed Answer:**
@@ -457,6 +437,38 @@ This is particularly important because it directly impacts the overall effective
 The best approach depends on your specific requirements and context, but following these guidelines will help you make an informed decision and achieve better outcomes.
 
 *Tags: ${content.tags.join(', ')}*`;
+  }, [content, getContentTitle]);
+
+  if (!content) {
+    return (
+      <DashboardLayout>
+        <div className="flex items-center justify-center h-96">
+          <div className="text-center">
+            <h3 className="text-lg font-medium text-gray-900 mb-2 font-roboto">Content not found</h3>
+            <p className="text-gray-600 font-roboto">The requested content could not be found.</p>
+          </div>
+        </div>
+      </DashboardLayout>
+    );
+  }
+
+  const handleBack = () => {
+    router.back(); // Use router.back() for better performance instead of pushing new route
+  };
+
+  const handleEdit = () => {
+    setIsEditing(true);
+  };
+
+  const handleSave = () => {
+    setIsEditing(false);
+    // Handle save logic here
+  };
+
+  const handleUse = () => {
+    console.log(`Using ${type} content:`, content.id);
+    // Handle content usage logic here
+    alert(`Content "${getContentTitle()}" has been marked for use!`);
   };
 
   const ContentIcon = getContentIcon();
