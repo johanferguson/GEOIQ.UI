@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import { 
   DocumentTextIcon,
   BuildingOfficeIcon,
@@ -222,9 +223,7 @@ const ContentCard = ({ children, className = '', onClick = () => {} }: {
 }) => (
   <motion.div
     variants={cardVariants}
-    className={`geoiq-card p-6 hover:shadow-lg transition-all duration-300 cursor-pointer ${className}`}
-    whileHover={{ scale: 1.02, y: -2 }}
-    whileTap={{ scale: 0.98 }}
+    className={`geoiq-card p-6 hover:shadow-lg transition-shadow duration-300 cursor-pointer ${className}`}
     onClick={onClick}
   >
     {children}
@@ -276,261 +275,13 @@ const ActionButton = ({
   );
 };
 
-// ViewModal Component for viewing and editing content
-const ViewModal = ({ 
-  content, 
-  isEditing, 
-  onClose, 
-  onEdit, 
-  onSave, 
-  onUse 
-}: {
-  content: any;
-  isEditing: boolean;
-  onClose: () => void;
-  onEdit: () => void;
-  onSave: () => void;
-  onUse: () => void;
-}) => {
-  const [editedContent, setEditedContent] = useState(content);
-
-  useEffect(() => {
-    setEditedContent(content);
-  }, [content]);
-
-  if (!content) return null;
-
-  const getContentTitle = () => {
-    switch (content.type) {
-      case 'blog': return content.topic;
-      case 'linkedin': return content.topic;
-      case 'reddit': return content.question;
-      case 'quora': return content.question;
-      default: return 'Content';
-    }
-  };
-
-  const getFullContent = () => {
-    const title = getContentTitle();
-    const description = content.description;
-    
-    // Generate full content based on type
-    switch (content.type) {
-      case 'blog':
-        return `# ${title}
-
-${description}
-
-## Introduction
-
-In today's rapidly evolving business landscape, ${content.tags[0].toLowerCase()} has become a critical factor for success. This comprehensive guide explores how organizations can leverage innovative approaches to drive growth and efficiency.
-
-## Key Benefits
-
-${content.tags.map((tag: string, index: number) => `${index + 1}. **${tag}**: Detailed explanation of how this aspect contributes to overall success.`).join('\n')}
-
-## Implementation Strategy
-
-To successfully implement these solutions, organizations should consider the following approach:
-
-1. **Assessment Phase**: Evaluate current capabilities and identify areas for improvement
-2. **Planning Phase**: Develop a comprehensive roadmap with clear milestones
-3. **Execution Phase**: Deploy solutions with proper change management
-4. **Optimization Phase**: Continuously monitor and refine processes
-
-## Conclusion
-
-By following these best practices and leveraging the right tools, organizations can achieve significant improvements in their operations and competitive positioning.
-
----
-*Estimated read time: ${content.estimatedReadTime || '8 min read'}*`;
-
-      case 'linkedin':
-        return `${title}
-
-${description}
-
-Key insights:
-${content.tags.map((tag: string) => `• ${tag}`).join('\n')}
-
-What are your thoughts on this approach? Share your experiences in the comments below.
-
-#Innovation #Technology #Business #Growth`;
-
-      case 'reddit':
-      case 'quora':
-        return `**Question:** ${title}
-
-**Detailed Answer:**
-
-${description}
-
-Based on my experience and research, here are the key points to consider:
-
-${content.tags.map((tag: string, index: number) => `**${index + 1}. ${tag}**
-This is particularly important because it directly impacts the overall effectiveness of your approach.`).join('\n\n')}
-
-**Conclusion:**
-The best approach depends on your specific requirements, but following these guidelines will help you make an informed decision.
-
-*Tags: ${content.tags.join(', ')}*`;
-
-      default:
-        return description;
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
-      onClick={onClose}
-    >
-      <motion.div
-        initial={{ scale: 0.95, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        exit={{ scale: 0.95, opacity: 0 }}
-        className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden"
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <div className="flex items-center space-x-3">
-            <div className="p-2 rounded-lg bg-[#390099]/10">
-              {content.type === 'blog' && <DocumentTextIcon className="w-5 h-5 text-[#390099]" />}
-              {content.type === 'linkedin' && <ShareIcon className="w-5 h-5 text-[#390099]" />}
-              {(content.type === 'reddit' || content.type === 'quora') && <QuestionMarkCircleIcon className="w-5 h-5 text-[#390099]" />}
-            </div>
-            <div>
-              <h2 className="text-xl font-semibold text-gray-900 font-roboto">
-                {isEditing ? 'Edit Content' : 'Preview Content'}
-              </h2>
-              <p className="text-sm text-gray-600 font-roboto capitalize">
-                {content.type} {content.type === 'blog' ? 'Post' : content.type === 'linkedin' ? 'Post' : 'Question'}
-              </p>
-            </div>
-          </div>
-          
-          <div className="flex items-center space-x-2">
-            {!isEditing ? (
-              <button
-                onClick={onEdit}
-                className="bg-white border border-gray-300 text-[#390099] px-4 py-2 rounded-lg text-sm font-medium hover:bg-gray-50 hover:border-[#390099] transition-all duration-200 font-roboto"
-              >
-                Edit
-              </button>
-            ) : (
-              <button
-                onClick={onSave}
-                className="bg-[#390099] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#390099]/90 transition-all duration-200 font-roboto"
-              >
-                Save Changes
-              </button>
-            )}
-            <button
-              onClick={onClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-              </svg>
-            </button>
-          </div>
-        </div>
-
-        {/* Content */}
-        <div className="p-6 overflow-y-auto max-h-[calc(90vh-200px)]">
-          {isEditing ? (
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 font-roboto mb-2">
-                  {content.type === 'blog' ? 'Article Title' : content.type === 'linkedin' ? 'Post Title' : 'Question'}
-                </label>
-                <input
-                  type="text"
-                  value={editedContent.topic || editedContent.question || ''}
-                  onChange={(e) => setEditedContent({
-                    ...editedContent,
-                    [content.type === 'blog' || content.type === 'linkedin' ? 'topic' : 'question']: e.target.value
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#390099] focus:border-transparent font-roboto"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 font-roboto mb-2">
-                  Content
-                </label>
-                <textarea
-                  value={getFullContent()}
-                  onChange={(e) => {/* Handle content change */}}
-                  rows={20}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#390099] focus:border-transparent font-roboto font-mono text-sm"
-                />
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 font-roboto mb-2">
-                  Tags
-                </label>
-                <input
-                  type="text"
-                  value={editedContent.tags?.join(', ') || ''}
-                  onChange={(e) => setEditedContent({
-                    ...editedContent,
-                    tags: e.target.value.split(',').map(tag => tag.trim())
-                  })}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#390099] focus:border-transparent font-roboto"
-                  placeholder="Separate tags with commas"
-                />
-              </div>
-            </div>
-          ) : (
-            <div className="prose prose-lg max-w-none">
-              <div className="whitespace-pre-wrap font-roboto text-gray-800 leading-relaxed">
-                {getFullContent()}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Footer */}
-        <div className="flex items-center justify-between p-6 border-t border-gray-200 bg-gray-50">
-          <div className="flex flex-wrap gap-2">
-            {content.tags?.map((tag: string, index: number) => (
-              <span
-                key={index}
-                className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#390099]/10 text-[#390099] border border-[#390099]/20"
-              >
-                <TagIcon className="w-3 h-3 mr-1" />
-                {tag}
-              </span>
-            ))}
-          </div>
-          
-          <ActionButton
-            icon={content.type === 'blog' ? DocumentTextIcon : content.type === 'linkedin' ? ShareIcon : ChatBubbleLeftRightIcon}
-            onClick={onUse}
-            className="bg-[#390099] text-white hover:bg-[#390099]/90 border-[#390099]"
-          >
-            Use {content.type === 'blog' ? 'Topic' : content.type === 'linkedin' ? 'Post' : 'Answer'}
-          </ActionButton>
-        </div>
-      </motion.div>
-    </motion.div>
-  );
-};
-
 export default function SuggestedContentPage() {
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState('geoiq');
   const [activeContentType, setActiveContentType] = useState('blog');
   const [loading, setLoading] = useState(true);
   const [suggestedContent, setSuggestedContent] = useState<any>(null);
   const [regenerating, setRegenerating] = useState(false);
-  const [viewingContent, setViewingContent] = useState<any>(null);
-  const [editingContent, setEditingContent] = useState(false);
 
   useEffect(() => {
     loadSuggestedContent();
@@ -553,22 +304,17 @@ export default function SuggestedContentPage() {
   };
 
   const handleViewContent = (content: any, type: string) => {
-    setViewingContent({ ...content, type });
-    setEditingContent(false);
-  };
-
-  const handleEditContent = () => {
-    setEditingContent(true);
-  };
-
-  const handleSaveContent = () => {
-    setEditingContent(false);
-    // Handle save logic here
+    // Navigate to content view page with parameters
+    const params = new URLSearchParams({
+      type: type,
+      id: content.id,
+      brand: activeTab
+    });
+    router.push(`/content/view?${params.toString()}`);
   };
 
   const handleUseContent = (type: string, id: string) => {
     console.log(`Using ${type} content:`, id);
-    setViewingContent(null);
     // Handle content usage logic here
   };
 
@@ -997,20 +743,6 @@ export default function SuggestedContentPage() {
                     </motion.div>
                   )}
                 </motion.div>
-              )}
-            </AnimatePresence>
-
-            {/* View Modal */}
-            <AnimatePresence>
-              {viewingContent && (
-                <ViewModal
-                  content={viewingContent}
-                  isEditing={editingContent}
-                  onClose={() => setViewingContent(null)}
-                  onEdit={handleEditContent}
-                  onSave={handleSaveContent}
-                  onUse={() => handleUseContent(viewingContent.type, viewingContent.id)}
-                />
               )}
             </AnimatePresence>
           </motion.div>
